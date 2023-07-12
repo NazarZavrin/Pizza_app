@@ -1,0 +1,57 @@
+Cheese Pizza (parmesan cheese, mozzarella cheese, tomato sauce) for vegetarians
+Pepperoni Pizza (sliced pepperoni, mozzarella cheese, oregano, basil)
+Margherita Pizza (sliced tomatoes, mozzarella cheese, basil) for vegetarians
+Hawaiian Pizza (ham, pineapple chunks, mozzarella cheese, oregano, tomato sauce)
+Pizza Capricciosa (ham, olives, sliced mushrooms, artichokes, mozzarella cheese, oregano, tomato sauce)
+Meat Pizza (italian sausage, ground beef, bacon, ham, sliced pepperoni, mozzarella cheese, tomato sauce)
+Calzone Pizza (sliced pepperoni, ham, sliced mushrooms, olives, parmesan cheese, mozzarella cheese, tomato sauce)
+Veggie Pizza (olives, sliced mushrooms, sliced tomatoes, mozzarella cheese, artichokes, basil, tomato sauce) for vegetarians
+
+1) pizza (name, weight, price, 
+ingredients, is vegetarian or not), 
+
+extra-toppings:
+italian sausage, ground beef, chopped onion, olives, sliced tomatoes, sliced mushroom, sliced  pepperoni, ham, parmesan cheese, mozzarella cheese, 
+========
+CREATE TABLE pizza(
+  name VARCHAR(20) PRIMARY KEY NOT NULL,
+  ingredients VARCHAR(100) NOT NULL,
+  weight DECIMAL NOT NULL,
+  price DECIMAL NOT NULL,
+  is_vegetarian BOOLEAN DEFAULT false
+)
+INSERT INTO pizza VALUES
+('Сирна', 'Пармезан, моцарела, томатний соус', 570, 155, true),
+('Пепероні', 'Нарізані пепероні, сир моцарела, орегано, базилік', 610, 185, false),
+('Маргарита', 'Нарізані помідори, сир моцарела, базилік', 590, 160, true),
+('Гавайська', 'Шинка, шматочки ананаса, сир моцарела, орегано, томатний соус', 615, 185, false),
+('Капричіоза', 'Шинка, оливки, нарізані гриби, артишоки, сир моцарела, орегано, томатний соус', 605, 175, false),
+('М''ясна', 'Італійська ковбаса, яловичий фарш, бекон, шинка, нарізаний пепероні, сир моцарела, томатний соус', 625, 195, false),
+('Кальцоне', 'Нарізані пепероні, шинка, нарізані гриби, оливки, сир пармезан, сир моцарела, томатний соус', 615, 185, false),
+('Вегетаріанська', 'Оливки, нарізані гриби, нарізані помідори, сир моцарелла, артишоки, базилік, томатний соус', 610, 185, true);
+
+SELECT name, weight, price FROM pizza;
+
+CREATE TABLE extra_toppings (
+  name VARCHAR(30) PRIMARY KEY NOT NULL,
+  weight DECIMAL NOT NULL,
+  price DECIMAL NOT NULL,
+  is_vegetarian BOOLEAN DEFAULT false
+)
+
+INSERT INTO extra_toppings VALUES
+('Італійська ковбаса', 80, 30, false),
+('Яловичий фарш', 70, 15, false),
+('Нарізана цибуля', 75, 20, true),
+('Нарізані помідори', 90, 20, true),
+('Нарізані гриби', 70, 25, true),
+('Нарізані пепероні', 80, 30, false),
+('Шинка', 75, 20, false),
+('Сир пармезан', 60, 20, true),
+('Сир моцарела', 60, 20, true);
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+Online store for pizza ordering
+> Data: 
+1) pizza (name, weight, price, 
+ingredients, is vegetarian or not), 
+2) extra toppings (name, weight, price, is vegetarian or not), 
+3) personal data of the customer (name, phone, email), 
+4) order data (order number, datetime, 
+list of pizzas with extra toppings, cost), 
+> Algorithms of:
+1) basket formation, 
+2) pizza delivery and receipt forming, 
+3) record of pizzas, 
+> Search filters: 
+1) the name of the pizza, 
+2) number of the order, 
+3) orders for the period, 
+> Report for the period with the number of receipts, 
+total cost, average cost of the receipt

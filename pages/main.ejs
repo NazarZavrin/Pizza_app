@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pizza app</title>
+    <link rel="stylesheet" href="./style/main.css" />
+    <meta name="Author" content="Nazar Zavrin" />
+    <meta name="Copyright" content="Nazar Zavrin" />
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div>Menu</div>
+        </header>
+        <main>
+            <% for(const pizza of pizzas){ %>
+                <section class="pizza">
+                    <div class="image">
+                        <img src=<%= pizza.imgUrl %> onerror="event.target.setAttribute('src', '/img/1x1-transparent.png')">
+                    </div>
+                    <div class="pizza__name"><%= pizza.name %></div>
+                    <div class="pizza__ingredients">Інгредієнти: <%= pizza.ingredients %></div>
+                    <div class="pizza__weight"><%= pizza.weight %> г.</div>
+                    <div class="pizza__price"><%= pizza.price %> грн.</div>
+                    <div class="pizza__is-vegetarian"><%= pizza.is_vegetarian %></div>
+                    <button type="button">Додати до кошику</button>
+                </section>
+            <% }%>
+        </main>
+    </div>
+</body>
+</html>
