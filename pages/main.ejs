@@ -12,7 +12,9 @@
 <body>
     <div class="wrapper">
         <header>
-            <div>Menu</div>
+            <span id="customer-name"></span>
+            <button class="change-account-btn">Змінити</button>
+            <button class="view-basket-btn">Кошик</button>
         </header>
         <main>
             <% for(const pizza of pizzas){ %>
@@ -25,10 +27,11 @@
                     <div class="pizza__weight"><%= pizza.weight %> г.</div>
                     <div class="pizza__price"><%= pizza.price %> грн.</div>
                     <div class="pizza__is-vegetarian"><%= pizza.is_vegetarian %></div>
-                    <button type="button">Додати до кошику</button>
+                    <button class="add-to-basket-btn" type="button">Додати до кошику</button>
                 </section>
             <% }%>
         </main>
     </div>
+    <script type="module" src="./script/main.js"></script>
 </body>
 </html>

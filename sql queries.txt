@@ -21,7 +21,7 @@ CREATE TABLE pizza(
   is_vegetarian BOOLEAN DEFAULT false
 )
 INSERT INTO pizza VALUES
-('Сирна', 'Пармезан, моцарела, томатний соус', 570, 155, true),
+('Сирна', 'Сир пармезан, сир моцарела, томатний соус', 570, 155, true),
 ('Пепероні', 'Нарізані пепероні, сир моцарела, орегано, базилік', 610, 185, false),
 ('Маргарита', 'Нарізані помідори, сир моцарела, базилік', 590, 160, true),
 ('Гавайська', 'Шинка, шматочки ананаса, сир моцарела, орегано, томатний соус', 615, 185, false),
@@ -50,7 +50,16 @@ INSERT INTO extra_toppings VALUES
 ('Сир пармезан', 60, 20, true),
 ('Сир моцарела', 60, 20, true);
 
+CREATE TABLE customer (
+  name VARCHAR(50) NOT NULL,
+  phone_num BIGINT NOT NULL,
+  email VARCHAR(50) NOT NULL,
+  last_action_date_time TIMESTAMP NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (name, phone_num)
+);
 
+insert into customer values
+('Kevin', 123456789012345, 'someEmail');
 
 
 

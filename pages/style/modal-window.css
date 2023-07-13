@@ -1,0 +1,116 @@
+.background {
+  z-index: 100;
+  background-color: rgba(74, 38, 38, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-width: 100vw;
+  height: 100%;
+  min-height: 100vh;
+}
+
+.modal-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  box-shadow: 0 0 10px 7px gray;
+  border-radius: 5px;
+  font: 20px "Calibri", sans-serif;
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.modal-window > .modal-window-cross {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  background-color: red;
+  border-radius: 50%;
+}
+.modal-window > .modal-window-cross > img {
+  max-width: 100%;
+}
+.modal-window .warning {
+  max-width: 100%;
+  font-style: normal;
+  display: inline-block;
+  font-size: 14px;
+  color: red;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.modal-window {
+  padding: 7px;
+}
+.modal-window header {
+  text-align: center;
+  margin-bottom: 3px;
+}
+.modal-window input:not([type=checkbox]) {
+  font: inherit;
+  display: inline-block;
+  width: 150px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 0 3px;
+  margin-bottom: 3px;
+}
+.modal-window button {
+  background-color: limegreen;
+  color: white;
+  padding: 3px 5px;
+  border-radius: 5px;
+  text-align: center;
+  font: inherit;
+}
+.modal-window.confirm header {
+  margin-bottom: 5px;
+  border-bottom: 2px solid gray;
+  border-radius: 5px;
+}
+.modal-window.confirm label {
+  margin-bottom: 5px;
+  white-space: nowrap;
+}
+.modal-window.confirm label > input[type=checkbox] {
+  margin-right: 3px;
+}
+.modal-window.registration .create-account-label {
+  text-align: center;
+  color: gray;
+  font-size: 16px;
+}
+.modal-window.registration button {
+  margin-bottom: 5px;
+}
+.modal-window.registration button.log-in-btn {
+  margin-top: 5px;
+}
+.modal-window.registration button.create-account-btn {
+  background-color: dodgerblue;
+}
+.modal-window.registration button.enter-as-employee-btn {
+  background-color: royalblue;
+}
+.modal-window.registration .separator {
+  width: 100%;
+  height: 2px;
+  background-color: gray;
+  margin-bottom: 5px;
+  border-radius: 3px;
+}
+.modal-window.create-account button {
+  margin-top: 5px;
+}

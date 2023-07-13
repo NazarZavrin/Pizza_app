@@ -31,6 +31,30 @@ app.get('/', async (req, res) => {
     }
 })
 
+app.get("/get-extra-toppings", async (req, res) => {
+    try {
+        let result = await pool.query(`SELECT * FROM extra_toppings`);
+        res.json({
+            success: true, data: result.rows.map(extraToppingInfo => {
+                extraToppingInfo.is_vegetarian = extraToppingInfo.is_vegetarian === true ? "Вегетаріанська" : "Не вегетаріанська";
+                return extraToppingInfo;
+            })
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Fetching data error. Please try again." });
+    }
+})
+
+app.post("/create-account", (req, res, next) => {
+    express.json({
+        limit: req.get('content-length'),
+    })(req, res, next);
+}, async (req, res) => {
+    console.log(req.body);
+    res.json({success: false, message: "Server error."});
+})
+
 app.listen(PORT, () => {
     console.log(`Server has been started on port ${PORT}...`);
 })
