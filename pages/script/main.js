@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, emailIsCorrect, phoneNumberIsCorrect, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 const customerName = document.getElementById("customer-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
@@ -18,6 +18,7 @@ changeAccountBtn.addEventListener("click", event => {
 })
 
 content.addEventListener("click", async event => {
+    // logic of adding pizza to the basket
     const addToBasketBtn = event.target.closest(".add-to-basket-btn");
     if (!addToBasketBtn) {
         return;
@@ -29,7 +30,7 @@ content.addEventListener("click", async event => {
     let pizzaInfo = {};
     pizzaInfo.name = pizzaContainer.querySelector(".pizza__name")?.textContent || "";
     pizzaInfo.ingredients = pizzaContainer.querySelector(".pizza__ingredients")?.textContent.toLowerCase() || "";
-
+    pizzaInfo.price = pizzaContainer.querySelector(".pizza__price")?.textContent || "";
     const header = createElement({ name: "header", content: `Оберіть добавки до піци "${pizzaInfo.name}":` });
     if (extraToppings.length === 0) {
         let result = {};
@@ -54,10 +55,11 @@ content.addEventListener("click", async event => {
         }
     }).map((extraToppingInfo, index) => {
         let extraToppingElement = createElement({ name: "label" });
-        extraToppingElement.innerHTML = `<input type="checkbox" name=${index}>${extraToppingInfo.name}`;
+        extraToppingElement.innerHTML = `<input type="checkbox" name=${index}>${extraToppingInfo.name} (${extraToppingInfo.price} грн.)`;
         return extraToppingElement;
     })
     const confirmBtn = createElement({ name: 'button', content: "Додати до кошику", class: "confirm-btn" });
+    console.log(confirmBtn);
     confirmBtn.addEventListener("click", async function (event) {
         Array.from(this.parentElement.querySelectorAll("input[type=checkbox]:checked")).forEach(checkbox => {
             if (!pizzaInfo.extraToppings) {
@@ -67,19 +69,27 @@ content.addEventListener("click", async event => {
         })
         basket.push(pizzaInfo);
         this.closest(".modal-window").closeWindow();
-
     });
     showModalWindow(document.body, [header, ...extraToppingsCheckboxes, confirmBtn], { className: 'confirm' });
 })
 
 viewBasketBtn.addEventListener('click', event => {
     console.log(...basket);
+    const orderBtn = createElement({ name: 'button', content: "Замовити", class: "order-btn" });
+    orderBtn.addEventListener("click", async event => {
+        event.target.closest(".modal-window").closeWindow();
+    });
+    // сума замовлення
+    showModalWindow(document.body,
+        [orderBtn],
+        { className: 'basket' });
 })
 
 function showRegistrationWindow() {
     let currentCustomerLabel = null;
     if (customerName.textContent.length !== 0) {
-        currentCustomerLabel = createElement({ content: "Користувач: " + customerName.textContent });
+        currentCustomerLabel = createElement({ content: "Поточний користувач: " + customerName.textContent });
+        currentCustomerLabel.style.fontSize = "16px";
     }
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
@@ -96,8 +106,8 @@ function showRegistrationWindow() {
     const createAccountLabel = createElement({ name: "span", content: "Немає аккаунту? Створіть його:", class: "create-account-label" });
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", event => {
-        showCreateAccountWindow();
         event.target.closest(".modal-window").closeWindow();
+        showCreateAccountWindow();
     });
     const separator = createElement({ class: "separator" });
     const enterAsEmployeeBtn = createElement({ name: 'button', content: "Увійти як працівник", class: "enter-as-employee-btn" });
@@ -105,7 +115,8 @@ function showRegistrationWindow() {
         location.href += "orders";
     });
     showModalWindow(document.body,
-        [currentCustomerLabel, nameLabel, nameInput,
+        [currentCustomerLabel, currentCustomerLabel ? separator.cloneNode(true) : null,
+            nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput, logInBtn,
             createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
         { className: 'registration' });
@@ -123,6 +134,7 @@ function showCreateAccountWindow() {
     emailInput.setAttribute("autocomplete", "off");
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", async event => {
+        setWarningAfterElement(createAccountBtn, '');
         let everythingIsCorrect = true;
         everythingIsCorrect = userNameIsCorrect(nameInput, null, event) && everythingIsCorrect;
         everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput, null, event) && everythingIsCorrect;
@@ -144,16 +156,20 @@ function showCreateAccountWindow() {
             if (response.ok) {
                 let result = await response.json();
                 if (!result.success) {
-                    throw new Error(result.message);
-                }
-                if (result.message.includes("alre")) {
-                    alert(result.message);
+                    if (result.message.includes("already exists")) {
+                        setWarningAfterElement(createAccountBtn, 'Покупець з таким іменем та номером телефону вже існує');
+                        return;
+                    }
+                    console.error(result.message);
+                    throw new Error("Server error.");
                 }
             }
         } catch (error) {
             alert(error.message);
             return;
         }
+        customerName.textContent = nameInput.value;
+        changeAccountBtn.textContent = "Змінити";
         event.target.closest(".modal-window").closeWindow();
     });
     showModalWindow(document.body,

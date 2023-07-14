@@ -51,8 +51,26 @@ app.post("/create-account", (req, res, next) => {
         limit: req.get('content-length'),
     })(req, res, next);
 }, async (req, res) => {
-    console.log(req.body);
-    res.json({success: false, message: "Server error."});
+    try {
+        if (!req.body.name || !req.body.phoneNum || !req.body.email) {
+            console.log("Account creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
+            throw new Error("Server error.");
+        }
+        await pool.query(`
+        DO $$
+        BEGIN IF EXISTS (SELECT * FROM customer WHERE name = '${req.body.name}' AND phone_num = ${req.body.phoneNum}) THEN
+        RAISE EXCEPTION 'Customer with such name and phone number already exists.';
+        ELSE
+        INSERT INTO customer VALUES ('${req.body.name}', ${req.body.phoneNum}, '${req.body.email}');
+        END IF;
+        END $$
+        `);
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+        return;
+    }
+    res.json({ success: true, message: "Customer was added." });
 })
 
 app.listen(PORT, () => {
