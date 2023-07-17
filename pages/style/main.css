@@ -88,10 +88,9 @@ h1, h2, h3, h4, h5, h6 {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
-  box-shadow: 0 0 10px 7px gray;
+  box-shadow: 0 0 15px gray;
   border-radius: 5px;
   font: 20px "Calibri", sans-serif;
-  opacity: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -157,6 +156,15 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 2px solid gray;
   border-radius: 5px;
 }
+.modal-window.confirm section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modal-window.confirm section + div {
+  text-align: center;
+  margin-bottom: 5px;
+}
 .modal-window.confirm label {
   margin-bottom: 5px;
   white-space: nowrap;
@@ -179,6 +187,39 @@ h1, h2, h3, h4, h5, h6 {
   background-color: gray;
   border-radius: 3px;
 }
+.modal-window.basket section {
+  max-height: 70vh;
+  overflow: auto;
+  padding: 3px;
+  margin-bottom: 3px;
+}
+.modal-window.basket section > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 0 3px 1px gray;
+  border-radius: 5px;
+  padding: 3px;
+  margin-bottom: 10px;
+}
+.modal-window.basket section > div:last-of-type {
+  margin-bottom: 0;
+}
+.modal-window.basket section > div > div.pizza-name {
+  white-space: nowrap;
+}
+.modal-window.basket section > div > div.extra-toppings {
+  font-size: 14px;
+  color: dimgray;
+}
+.modal-window.basket section > div > div.pizza-cost {
+  font-size: 16px;
+}
+.modal-window.basket .total-cost {
+  text-align: center;
+}
+
 html,
 body {
   display: flex;

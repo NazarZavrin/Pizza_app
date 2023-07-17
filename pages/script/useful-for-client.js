@@ -47,7 +47,7 @@ export function setWarningAfterElement(element, warningText) {
         element.insertAdjacentHTML("afterend", `<b class="warning">${warningText}</b>`);
     }
 }
-export function userNameIsCorrect(inputElement, elementForWarning = null, event = {}) {
+export function userNameIsCorrect(inputElement, elementForWarning = null) {
     let warningText = "";
     if (inputElement.value.length > 50) {
         warningText = "Ім'я не повинно бути більше, ніж 50 символів.";
@@ -58,7 +58,7 @@ export function userNameIsCorrect(inputElement, elementForWarning = null, event 
     setWarningAfterElement(elementForWarning, warningText);
     return warningText.length > 0 ? false : true;
 }
-export function phoneNumberIsCorrect(inputElement, elementForWarning = null, event = {}) {
+export function phoneNumberIsCorrect(inputElement, elementForWarning = null) {
     let warningText = "";
     if (inputElement.value.length > 20) {
         warningText = "Номер телефону не повинен бути більше, ніж 20 символів.";
@@ -79,7 +79,7 @@ export function phoneNumberIsCorrect(inputElement, elementForWarning = null, eve
 const emailRegex = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+$/;
 // console.log("Some-Email@gmail.com".match(emailRegex));
 // console.log("wrong@email@gmail.com".match(emailRegex));
-export function emailIsCorrect(inputElement, elementForWarning = null, event = {}) {
+export function emailIsCorrect(inputElement, elementForWarning = null) {
     let warningText = "";
     if (inputElement.value.length > 50) {
         warningText = "Email не повинен бути більше, ніж 50 символів.";
