@@ -144,6 +144,12 @@
 .modal-window.basket section > div > div.pizza-cost {
   font-size: 16px;
 }
+.modal-window.basket section > div > .del-from-basket-btn {
+  background-color: red;
+  font-size: 18px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
 .modal-window.basket .total-cost {
   text-align: center;
 }

@@ -2,15 +2,17 @@
 
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
+console.warn("Recalc the cost of order after deletion a pizza from basket");
+
 const customerName = document.getElementById("customer-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
 const viewBasketBtn = document.getElementsByClassName("view-basket-btn")[0];
 const content = document.querySelector(".wrapper");
 
-const basket = [
+let basket = [
     {
-        cost: "Сума: піца (185 грн.) + добавки (45 грн.) = 230 грн.",
-        extraToppings: ['Нарізані гриби (25 грн.)', 'Шинка (20 грн.)'],
+        cost: "Сума: піца (185 грн.) + добавки (40 грн.) = 225 грн.",
+        extraToppings: ['Шинка', 'Сир пармезан'],
         pizzaInfo: {
             ingredients: "інгредієнти: нарізані пепероні, сир моцарела, орегано, базилік",
             name: "Пепероні",
@@ -20,8 +22,10 @@ const basket = [
 ];
 let extraToppings = [];
 
-if (customerName.textContent.length === 0) {
+if (localStorage.getItem("customerName") === null) {
     changeAccountBtn.textContent = "Увійти або створити акаунт";
+} else {
+    customerName.textContent = localStorage.getItem("customerName");
 }
 changeAccountBtn.addEventListener("click", event => {
     showRegistrationWindow();
@@ -89,7 +93,8 @@ content.addEventListener("click", async event => {
             if (!order.extraToppings) {
                 order.extraToppings = [];
             }
-            order.extraToppings.push(checkbox.parentElement.textContent);
+            let extraToppingInfo = checkbox.parentElement.textContent;
+            order.extraToppings.push(extraToppingInfo.slice(0, extraToppingInfo.indexOf(' (')));
         })
         order.cost = orderCostElem.textContent;
         basket.push(order);
@@ -101,37 +106,75 @@ content.addEventListener("click", async event => {
 viewBasketBtn.addEventListener('click', event => {
     console.log(...basket);
     let currentCustomerLabel = null;
-    if (customerName.textContent.length !== 0) {
-        currentCustomerLabel = createElement({ content: "Поточний користувач: " + customerName.textContent });
+    if (localStorage.getItem("customerName") !== null) {
+        currentCustomerLabel = createElement({ content: "Поточний користувач: " + localStorage.getItem("customerName") });
         currentCustomerLabel.style.fontSize = "16px";
+        currentCustomerLabel.style.textAlign = "center";
     }
-    let orders = createElement({ name: 'section' })
+    let orders = createElement({ name: 'section' });
     let totalCost = 0;
     basket.forEach(order => {
-        const pizzaName = createElement({ class: 'pizza-name', content: `Піца: ${order.pizzaInfo.name}` });
-        const extraToppings = createElement({ class: 'extra-toppings' });
-        extraToppings.textContent = order.extraToppings?.reduce((prev, cur) => {
-            return prev += cur.slice(0, cur.indexOf(' (')).concat(", ");
-        }, "").slice(0, -2) || "Добавки відсутні";
-        if (!extraToppings.textContent.includes("відсутні")) {
-            extraToppings.textContent = 'Добавки: ' + extraToppings.textContent.toLocaleLowerCase();
+        const pizzaNameElem = createElement({ class: 'pizza-name', content: `Піца: ${order.pizzaInfo.name}` });
+        const extraToppingsElem = createElement({ class: 'extra-toppings' });
+        extraToppingsElem.textContent = order.extraToppings?.join(", ") || "Добавки відсутні";
+        if (!extraToppingsElem.textContent.includes("відсутні")) {
+            extraToppingsElem.textContent = 'Добавки: ' + extraToppingsElem.textContent.toLocaleLowerCase();
         }
         const orderElement = createElement();
-        orderElement.append(pizzaName);
-        orderElement.append(extraToppings);
-        orderElement.insertAdjacentHTML('beforeend', `<div class='pizza-cost'>${order.cost}</div>`);
+        orderElement.append(pizzaNameElem);
+        orderElement.append(extraToppingsElem);
+        orderElement.insertAdjacentHTML('beforeend', `<div class='pizza-cost'>${order.cost}</div>
+        <button type="button" class="del-from-basket-btn">Видалити з кошику</button>`);
         totalCost += Number.parseFloat(order.cost.match(/= (\d+)/)[1]);
         orders.append(orderElement);
     });
+    orders.addEventListener('click', event => {
+        const delFromBasketBtn = event.target.closest('.del-from-basket-btn');
+        if (!delFromBasketBtn) {
+            return;
+        }
+        let orderIndex = [...orders.querySelectorAll('.del-from-basket-btn')].findIndex(btn => btn === delFromBasketBtn);
+        basket = basket.filter((item, index) => index !== orderIndex);
+        delFromBasketBtn.closest('section > div')?.remove();
+    })
     const totalCostElem = createElement({ class: 'total-cost', content: `Сума замовлення: ${totalCost} грн.` });
     const orderBtn = createElement({ name: 'button', content: "Замовити", class: "order-btn" });
     orderBtn.addEventListener("click", async event => {
-        event.target.closest(".modal-window").closeWindow();
-        if (currentCustomerLabel) {
-            // save an order
+        if (localStorage.getItem("customerName") !== null) {
+            try {
+                let requestBody = {
+                    customerName: localStorage.getItem("customerName"),
+                    customerPhoneNum: localStorage.getItem("customerPhoneNum")
+                };
+                requestBody.orders = basket.map(order => {
+                    return {
+                        pizzaName: order.pizzaInfo.name,
+                        extraToppings: order.extraToppings
+                    }
+                });
+                let response = await fetch(location.href + "create-order", {
+                    method: "POST",
+                    body: JSON.stringify(requestBody),
+                    headers: { "Content-Type": "application/json" }
+                })
+                if (response.ok) {
+                    let result = await response.json();
+                    console.log(result);
+                    if (!result.success) {
+                        console.error(result.message);
+                        throw new Error(result.errorInfo || "Server error.");
+                    } else {
+                        setWarningAfterElement(orderBtn, `Замовлення оформлено.`);
+                        return;
+                    }
+                }
+            } catch (error) {
+                alert(error.message);
+                return;
+            }
         } else {
-            // registration
-            showRegistrationWindow();
+            event.target.closest(".modal-window").closeWindow();
+            showRegistrationWindow("show basket after registration");
         }
     });
     showModalWindow(document.body,
@@ -139,11 +182,12 @@ viewBasketBtn.addEventListener('click', event => {
         { className: 'basket' });
 })
 
-function showRegistrationWindow() {
+function showRegistrationWindow(whatToDoAfterRegistration = "") {
     let currentCustomerLabel = null;
-    if (customerName.textContent.length !== 0) {
-        currentCustomerLabel = createElement({ content: "Поточний користувач: " + customerName.textContent });
+    if (localStorage.getItem("customerName") !== null) {
+        currentCustomerLabel = createElement({ content: "Поточний користувач: " + localStorage.getItem("customerName") });
         currentCustomerLabel.style.fontSize = "16px";
+        currentCustomerLabel.style.textAlign = "center";
     }
     const header = createElement({ name: "header" });
     header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна користувача";
@@ -190,14 +234,16 @@ function showRegistrationWindow() {
                     if (result.message.includes("not exist")) {
                         setWarningAfterElement(logInBtn, `Користувача з такими даними не існує`);
                         return;
-                    } else if (result.message.includes("several users")) {
+                    } else if (result.message.includes("several customers")) {
                         setWarningAfterElement(logInBtn, `Знайдено декілька користувачів з такими даними. Введіть додаткове дане (ім'я чи номер телефону) для уточнення пошуку.`);
                         return;
                     }
                     console.error(result.message);
                     throw new Error(result.errorInfo || "Server error.");
                 } else {
-                    customerName.textContent = result.userData.name;
+                    customerName.textContent = result.customerData.name;
+                    localStorage.setItem("customerName", result.customerData.name);
+                    localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
                 }
             }
         } catch (error) {
@@ -206,12 +252,15 @@ function showRegistrationWindow() {
         }
         changeAccountBtn.textContent = "Змінити";
         event.target.closest(".modal-window").closeWindow();
+        if (whatToDoAfterRegistration.includes("show basket")) {
+            viewBasketBtn.click();
+        }
     });
     const createAccountLabel = createElement({ name: "span", content: "Немає аккаунту? Створіть його:", class: "create-account-label" });
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", event => {
         event.target.closest(".modal-window").closeWindow();
-        showCreateAccountWindow();
+        showCreateAccountWindow(whatToDoAfterRegistration);
     });
     const separator = createElement({ class: "separator" });
     const enterAsEmployeeBtn = createElement({ name: 'button', content: "Увійти як працівник", class: "enter-as-employee-btn" });
@@ -225,7 +274,7 @@ function showRegistrationWindow() {
             createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
         { className: 'registration' });
 }
-function showCreateAccountWindow() {
+function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
     const header = createElement({ name: "header", content: "Реєстрація" });
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
@@ -267,15 +316,21 @@ function showCreateAccountWindow() {
                     }
                     console.error(result.message);
                     throw new Error(result.errorInfo || "Server error.");
+                } else {
+                    customerName.textContent = result.customerData.name;
+                    localStorage.setItem("customerName", result.customerData.name);
+                    localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
                 }
             }
         } catch (error) {
             alert(error.message);
             return;
         }
-        customerName.textContent = nameInput.value;
         changeAccountBtn.textContent = "Змінити";
         event.target.closest(".modal-window").closeWindow();
+        if (whatToDoAfterAccountCreation.includes("show basket")) {
+            viewBasketBtn.click();
+        }
     });
     showModalWindow(document.body,
         [header, nameLabel, nameInput,

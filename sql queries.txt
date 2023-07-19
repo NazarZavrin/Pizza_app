@@ -1,18 +1,3 @@
-Cheese Pizza (parmesan cheese, mozzarella cheese, tomato sauce) for vegetarians
-Pepperoni Pizza (sliced pepperoni, mozzarella cheese, oregano, basil)
-Margherita Pizza (sliced tomatoes, mozzarella cheese, basil) for vegetarians
-Hawaiian Pizza (ham, pineapple chunks, mozzarella cheese, oregano, tomato sauce)
-Pizza Capricciosa (ham, olives, sliced mushrooms, artichokes, mozzarella cheese, oregano, tomato sauce)
-Meat Pizza (italian sausage, ground beef, bacon, ham, sliced pepperoni, mozzarella cheese, tomato sauce)
-Calzone Pizza (sliced pepperoni, ham, sliced mushrooms, olives, parmesan cheese, mozzarella cheese, tomato sauce)
-Veggie Pizza (olives, sliced mushrooms, sliced tomatoes, mozzarella cheese, artichokes, basil, tomato sauce) for vegetarians
-
-1) pizza (name, weight, price, 
-ingredients, is vegetarian or not), 
-
-extra-toppings:
-italian sausage, ground beef, chopped onion, olives, sliced tomatoes, sliced mushroom, sliced  pepperoni, ham, parmesan cheese, mozzarella cheese, 
-========
 CREATE TABLE pizza(
   name VARCHAR(20) PRIMARY KEY NOT NULL,
   ingredients VARCHAR(100) NOT NULL,
@@ -60,6 +45,30 @@ CREATE TABLE customer (
 
 insert into customer values
 ('Kevin', 123456789012345, 'someEmail');
+
+CREATE TABLE employee (
+  name VARCHAR(50) PRIMARY KEY NOT NULL,
+  phone_num BIGINT NOT NULL,
+  email VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE pizza_order (
+  num BIGSERIAL PRIMARY KEY NOT NULL,
+  receipt_num BIGINT NOT NULL,
+  datetime TIMESTAMP NOT NULL DEFAULT NOW(),
+  pizza VARCHAR(20) NOT NULL REFERENCES pizza(name),
+  cost DECIMAL NOT NULL,
+  customer_name VARCHAR(50) NOT NULL,
+  customer_phone_num BIGINT NOT NULL,
+  FOREIGN KEY (customer_name, customer_phone_num) REFERENCES customer (name, phone_num),
+  employee VARCHAR(50) NULL DEFAULT NULL REFERENCES employee (name)
+);
+
+CREATE TABLE order_extra_topping (
+  order_num BIGINT NOT NULL REFERENCES pizza_order(num) DEFERRABLE INITIALLY DEFERRED,
+  extra_topping VARCHAR(30) NOT NULL REFERENCES extra_topping(name) DEFERRABLE INITIALLY DEFERRED,
+  PRIMARY KEY (order_num, extra_topping)
+);
 
 
 
