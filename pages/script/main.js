@@ -2,12 +2,12 @@
 
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
-console.warn("Recalc the cost of order after deletion a pizza from basket");
+// console.info(``);
 
 const customerName = document.getElementById("customer-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
 const viewBasketBtn = document.getElementsByClassName("view-basket-btn")[0];
-const content = document.querySelector(".wrapper");
+const content = document.querySelector(".wrapper > main");
 
 let basket = [
     {
@@ -23,9 +23,11 @@ let basket = [
 let extraToppings = [];
 
 if (localStorage.getItem("customerName") === null) {
+    customerName.style.display = "none";
     changeAccountBtn.textContent = "Увійти або створити акаунт";
 } else {
     customerName.textContent = localStorage.getItem("customerName");
+    customerName.style.display = "";
 }
 changeAccountBtn.addEventListener("click", event => {
     showRegistrationWindow();
@@ -107,12 +109,11 @@ viewBasketBtn.addEventListener('click', event => {
     console.log(...basket);
     let currentCustomerLabel = null;
     if (localStorage.getItem("customerName") !== null) {
-        currentCustomerLabel = createElement({ content: "Поточний користувач: " + localStorage.getItem("customerName") });
+        currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
         currentCustomerLabel.style.fontSize = "16px";
         currentCustomerLabel.style.textAlign = "center";
     }
     let orders = createElement({ name: 'section' });
-    let totalCost = 0;
     basket.forEach(order => {
         const pizzaNameElem = createElement({ class: 'pizza-name', content: `Піца: ${order.pizzaInfo.name}` });
         const extraToppingsElem = createElement({ class: 'extra-toppings' });
@@ -125,10 +126,25 @@ viewBasketBtn.addEventListener('click', event => {
         orderElement.append(extraToppingsElem);
         orderElement.insertAdjacentHTML('beforeend', `<div class='pizza-cost'>${order.cost}</div>
         <button type="button" class="del-from-basket-btn">Видалити з кошику</button>`);
-        totalCost += Number.parseFloat(order.cost.match(/= (\d+)/)[1]);
         orders.append(orderElement);
     });
+    const totalCostElem = createElement({ class: 'total-cost' });
+    const orderBtn = createElement({ name: 'button', content: "Замовити", class: "order-btn" });
+    function updateTotalCost() {
+        totalCostElem.textContent = `Сума замовлення: ${basket.reduce(
+            (totalCost, order) => totalCost + Number.parseFloat(order.cost.match(/= (\d+)/)[1]), 0)
+        } грн.`;
+        if (totalCostElem.textContent.includes(": 0 грн")) {
+            orders.textContent = "Кошик пустий";
+            totalCostElem.textContent = "";
+            orderBtn.style.display = "none";
+        } else {
+            orderBtn.style.display = "";
+        }
+    }
+    updateTotalCost();
     orders.addEventListener('click', event => {
+        // deletion from the basket
         const delFromBasketBtn = event.target.closest('.del-from-basket-btn');
         if (!delFromBasketBtn) {
             return;
@@ -136,12 +152,14 @@ viewBasketBtn.addEventListener('click', event => {
         let orderIndex = [...orders.querySelectorAll('.del-from-basket-btn')].findIndex(btn => btn === delFromBasketBtn);
         basket = basket.filter((item, index) => index !== orderIndex);
         delFromBasketBtn.closest('section > div')?.remove();
+        updateTotalCost();
     })
-    const totalCostElem = createElement({ class: 'total-cost', content: `Сума замовлення: ${totalCost} грн.` });
-    const orderBtn = createElement({ name: 'button', content: "Замовити", class: "order-btn" });
     orderBtn.addEventListener("click", async event => {
         if (localStorage.getItem("customerName") !== null) {
             try {
+                if (basket.length === 0) {
+                    throw new Error("Кошик пустий!");
+                }
                 let requestBody = {
                     customerName: localStorage.getItem("customerName"),
                     customerPhoneNum: localStorage.getItem("customerPhoneNum")
@@ -185,12 +203,12 @@ viewBasketBtn.addEventListener('click', event => {
 function showRegistrationWindow(whatToDoAfterRegistration = "") {
     let currentCustomerLabel = null;
     if (localStorage.getItem("customerName") !== null) {
-        currentCustomerLabel = createElement({ content: "Поточний користувач: " + localStorage.getItem("customerName") });
+        currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
         currentCustomerLabel.style.fontSize = "16px";
         currentCustomerLabel.style.textAlign = "center";
     }
     const header = createElement({ name: "header" });
-    header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна користувача";
+    header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна покупця";
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
     nameInput.setAttribute("autocomplete", "off");
@@ -212,7 +230,7 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
         }
         if (nameInput.value.length === 0 && phoneNumberInput.value.length === 0) {
-            setWarningAfterElement(logInBtn, "Для регістрації потрібно ввести ім'я користувача та номер телефону, або одне з них");
+            setWarningAfterElement(logInBtn, "Для регістрації потрібно ввести ім'я та номер телефону, або одне з них");
             everythingIsCorrect = false;
         }
         if (everythingIsCorrect === false) {
@@ -232,16 +250,17 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
                 let result = await response.json();
                 if (!result.success) {
                     if (result.message.includes("not exist")) {
-                        setWarningAfterElement(logInBtn, `Користувача з такими даними не існує`);
+                        setWarningAfterElement(logInBtn, `Покупця з такими даними не існує`);
                         return;
                     } else if (result.message.includes("several customers")) {
-                        setWarningAfterElement(logInBtn, `Знайдено декілька користувачів з такими даними. Введіть додаткове дане (ім'я чи номер телефону) для уточнення пошуку.`);
+                        setWarningAfterElement(logInBtn, `Знайдено декілька покупців з такими даними. Введіть додаткове дане (ім'я чи номер телефону) для уточнення пошуку.`);
                         return;
                     }
                     console.error(result.message);
                     throw new Error(result.errorInfo || "Server error.");
                 } else {
                     customerName.textContent = result.customerData.name;
+                    customerName.style.display = "";
                     localStorage.setItem("customerName", result.customerData.name);
                     localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
                 }
@@ -250,7 +269,7 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
             alert(error.message);
             return;
         }
-        changeAccountBtn.textContent = "Змінити";
+        changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
         if (whatToDoAfterRegistration.includes("show basket")) {
             viewBasketBtn.click();
@@ -318,6 +337,7 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
                     throw new Error(result.errorInfo || "Server error.");
                 } else {
                     customerName.textContent = result.customerData.name;
+                    customerName.style.display = "";
                     localStorage.setItem("customerName", result.customerData.name);
                     localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
                 }
@@ -326,7 +346,7 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
             alert(error.message);
             return;
         }
-        changeAccountBtn.textContent = "Змінити";
+        changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
         if (whatToDoAfterAccountCreation.includes("show basket")) {
             viewBasketBtn.click();

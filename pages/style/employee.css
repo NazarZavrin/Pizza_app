@@ -265,7 +265,7 @@ body {
   color: white;
   background-color: blue;
 }
-.wrapper > header > #customer-name {
+.wrapper > header > #employee-name {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -278,7 +278,7 @@ body {
   border-radius: 5px;
   font: inherit;
 }
-.wrapper > header > .view-basket-btn {
+.wrapper > header > .exit-btn {
   grid-column-start: 4;
   background-color: limegreen;
   color: white;
@@ -289,7 +289,6 @@ body {
 
 main {
   width: 100%;
-  padding: 10px;
   margin-top: 50px;
   min-width: -moz-fit-content;
   min-width: fit-content;
@@ -298,7 +297,33 @@ main {
   font: 20px "Calibri";
 }
 
-section.pizza {
+main > header {
+  padding: 0 5px;
+  border: 3px solid gray;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+}
+main > header > input {
+  font: inherit;
+  display: inline-block;
+  width: 150px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 0 3px;
+}
+main > header > button {
+  background-color: limegreen;
+  color: white;
+  margin: 5px 0;
+  padding: 3px 5px;
+  border-radius: 5px;
+  text-align: center;
+  font: inherit;
+}
+main > header > #search-btn {
+  background-color: dodgerblue;
+}
+section.order {
   width: 100%;
   min-width: -moz-fit-content;
   min-width: fit-content;
@@ -311,56 +336,13 @@ section.pizza {
   border-radius: 5px;
   margin-bottom: 15px;
 }
-section.pizza:last-of-type {
+section.order:last-of-type {
   margin-bottom: 0;
 }
-section.pizza > div {
+section.order > div {
   display: flex;
   justify-content: center;
   align-items: center;
   white-space: nowrap;
   margin: 3px;
-}
-section.pizza > .pizza__name {
-  grid-area: name;
-}
-section.pizza > .pizza__ingredients {
-  grid-area: ingredients;
-  width: 100%;
-  padding-left: 3px;
-  margin-top: 0;
-  color: gray;
-  font-size: 16px;
-  white-space: break-spaces;
-}
-section.pizza > .pizza__weight {
-  grid-area: weight;
-}
-section.pizza > .pizza__price {
-  grid-area: price;
-}
-section.pizza > .pizza__is_vegetarian {
-  grid-area: is_vegetarian;
-}
-section.pizza > .image {
-  grid-area: image;
-  display: flex;
-  background-color: #eee;
-  margin: 0;
-}
-section.pizza > .image > img {
-  margin: auto;
-  max-width: 100%;
-}
-section.pizza > button[type=button] {
-  grid-area: add_to_basket_btn;
-  justify-self: center;
-  align-self: center;
-  background-color: limegreen;
-  color: white;
-  padding: 0 3px;
-  margin: 3px;
-  border-radius: 5px;
-  font: inherit;
-  font-size: 16px;
 }

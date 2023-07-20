@@ -65,8 +65,8 @@ CREATE TABLE pizza_order (
 );
 
 CREATE TABLE order_extra_topping (
-  order_num BIGINT NOT NULL REFERENCES pizza_order(num) DEFERRABLE INITIALLY DEFERRED,
-  extra_topping VARCHAR(30) NOT NULL REFERENCES extra_topping(name) DEFERRABLE INITIALLY DEFERRED,
+  order_num BIGINT NOT NULL REFERENCES pizza_order(num),
+  extra_topping VARCHAR(30) NOT NULL REFERENCES extra_topping(name),
   PRIMARY KEY (order_num, extra_topping)
 );
 

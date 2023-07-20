@@ -32,7 +32,7 @@ body {
   font: 20px "Calibri";
   color: white;
   background-color: blue;
-  & > #customer-name {
+  & > #employee-name {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -45,7 +45,7 @@ body {
     border-radius: 5px;
     font: inherit;
   }
-  & > .view-basket-btn {
+  & > .exit-btn {
     grid-column-start: 4;
     background-color: limegreen;
     color: white;
@@ -56,14 +56,42 @@ body {
 }
 main {
   width: 100%;
-  padding: 10px;
   margin-top: 50px; // the height of header
   min-width: fit-content;
   display: flex;
   flex-direction: column;
   font: 20px "Calibri";
 }
-section.pizza {
+main > header {
+  padding: 0 5px;
+  border: 3px solid gray;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+  & > input {
+    font: inherit;
+    display: inline-block;
+    width: 150px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 0 3px;
+  }
+  & > button {
+    background-color: limegreen;
+    color: white;
+    margin: 5px 0;
+    padding: 3px 5px;
+    border-radius: 5px;
+    text-align: center;
+    font: inherit;
+  }
+  & > #search-btn {
+    background-color: dodgerblue;
+  }
+  & > #refresh-btn {
+
+  }
+}
+section.order {
   width: 100%;
   min-width: fit-content;
   display: grid;
@@ -85,49 +113,5 @@ section.pizza {
     align-items: center;
     white-space: nowrap;
     margin: 3px;
-  }
-  & > .pizza__name {
-    grid-area: name;
-  }
-  & > .pizza__ingredients {
-    grid-area: ingredients;
-    width: 100%;
-    padding-left: 3px;
-    margin-top: 0;
-    color: gray;
-    font-size: 16px;
-    white-space: break-spaces; // word-wrap: break-word;
-  }
-  & > .pizza__weight {
-    grid-area: weight;
-  }
-  & > .pizza__price {
-    grid-area: price;
-  }
-  & > .pizza__is_vegetarian {
-    grid-area: is_vegetarian;
-  }
-  & > .image {
-    grid-area: image;
-    display: flex;
-    background-color: #eee;
-    margin: 0;
-    & > img {
-      margin: auto;
-      max-width: 100%;
-    }
-  }
-  & > button[type="button"] {
-    grid-area: add_to_basket_btn;
-    // height: min-content;
-    justify-self: center;
-    align-self: center;
-    background-color: limegreen;
-    color: white;
-    padding: 0 3px;
-    margin: 3px;
-    border-radius: 5px;
-    font: inherit;
-    font-size: 16px;
   }
 }

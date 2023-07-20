@@ -1,6 +1,7 @@
 import express from 'express';
 import pool from './connect-to-PostgreSQL.js';
 import path from 'path';
+import { employeeRouter } from './routers/employee-router.js';
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(path.resolve(), 'pages'));
 
 app.use(express.static(path.join(path.resolve(), 'pages')));
+app.use("/orders", employeeRouter);
 
 const imgNames = {
     "Сирна": "cheese-pizza.jpg"
@@ -46,6 +48,63 @@ app.get("/get-extra-toppings", async (req, res) => {
     }
 })
 
+app.post("/create-order", (req, res, next) => {
+    express.json({
+        limit: req.get('content-length'),
+    })(req, res, next);
+}, async (req, res) => {
+    try {
+        console.log(req.body);
+        if (!req.body.customerName || !req.body.customerPhoneNum || !Array.isArray(req.body.orders) || req.body.orders?.length == 0) {
+            throw new Error("Order creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
+        }
+        await pool.query(`
+        SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+        BEGIN;
+        `);
+        let result;
+        result = await pool.query(`
+        SELECT MAX(receipt_num) FROM pizza_order;
+        `);
+        let receiptNum = Number(result.rows[0].max) || 0;
+        for (const order of req.body.orders) {
+            result = await pool.query(`
+            SELECT price FROM pizza WHERE name = $1;
+            `, [order.pizzaName]);
+            let orderCost = Number.parseFloat(result.rows[0].price);
+            if (order.extraToppings === undefined) {
+                // if no extra topping were selected
+                result = await pool.query(`INSERT INTO pizza_order 
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
+                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) returning *
+                `, [receiptNum + 1, order.pizzaName, orderCost, req.body.customerName, req.body.customerPhoneNum]);// insert only pizza
+            } else {
+                // if some extra toppings were selected
+                result = await pool.query(`
+                SELECT SUM(price) FROM extra_topping WHERE name = ANY ($1);
+                `, [order.extraToppings]);// calc sum of selected extra toppings
+                orderCost += Number.parseFloat(result.rows[0].sum);
+                result = await pool.query(`WITH inserted_order AS (
+                INSERT INTO pizza_order 
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
+                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) RETURNING *
+                )
+                INSERT INTO order_extra_topping VALUES ` + order.extraToppings.reduce(
+                    (query, extraTopping, index) => query + `((SELECT num FROM inserted_order), $${index + 6}), `, ""
+                ).slice(0, -2).concat(";"),
+                [receiptNum + 1, order.pizzaName, orderCost, 
+                    req.body.customerName, req.body.customerPhoneNum, 
+                    ...order.extraToppings]);// insert pizza and extra toppings
+            }
+        }
+        await pool.query("COMMIT;");
+        res.json({ success: true, message: "Order was created successfully." });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+})
+
 app.propfind("/log-in", (req, res, next) => {
     express.json({
         limit: req.get('content-length'),
@@ -53,7 +112,7 @@ app.propfind("/log-in", (req, res, next) => {
 }, async (req, res) => {
     try {
         if (!req.body.name && !req.body.phoneNum) {
-            throw new Error("Log in: req.body doesn't contain neither name nor phone number: " + JSON.stringify(req.body));
+            throw new Error("Customer log in: req.body doesn't contain neither name nor phone number: " + JSON.stringify(req.body));
         }
         let condition = "", params = [];
         if (req.body.name.length > 0 && req.body.phoneNum.length > 0) {
@@ -82,7 +141,7 @@ app.propfind("/log-in", (req, res, next) => {
         console.log(error.message);
         res.json({ success: false, message: error.message });
     }
-});
+})
 
 app.post("/create-account", (req, res, next) => {
     express.json({
@@ -108,60 +167,6 @@ app.post("/create-account", (req, res, next) => {
             await pool.query(`COMMIT;`);
         }
         res.json({ success: true, message: "Customer was added.", customerData: result.rows[0] });
-    } catch (error) {
-        console.log(error.message);
-        res.json({ success: false, message: error.message });
-    }
-})
-
-app.post("/create-order", (req, res, next) => {
-    express.json({
-        limit: req.get('content-length'),
-    })(req, res, next);
-}, async (req, res) => {
-    try {
-        if (!req.body.customerName || !req.body.customerPhoneNum || !req.body.orders) {
-            throw new Error("Order creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
-        }
-        await pool.query(`
-        SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-        BEGIN;
-        `);
-        let result;
-        result = await pool.query(`
-        SELECT MAX(receipt_num) FROM pizza_order;
-        `);
-        let receiptNum = Number(result.rows[0].max) || 0;
-        for (const order of req.body.orders) {
-            result = await pool.query(`
-            SELECT price FROM pizza WHERE name = $1;
-            `, [order.pizzaName]);
-            let orderCost = Number.parseFloat(result.rows[0].price);
-            if (order.extraToppings === undefined) {
-                // if no extra topping were selected
-                result = await pool.query(`INSERT INTO pizza_order 
-                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
-                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) returning *
-                `, [receiptNum + 1, order.pizzaName, orderCost, req.body.customerName, req.body.customerPhoneNum]);// insert only pizza
-            } else {
-                // if some extra toppings were selected
-                result = await pool.query(`
-                SELECT SUM(price) FROM extra_topping WHERE name IN ('${order.extraToppings.join("', '")}');
-                `);// calc sum of selected extra toppings
-                orderCost += Number.parseFloat(result.rows[0].sum);
-                result = await pool.query(`WITH inserted_order AS (
-                INSERT INTO pizza_order 
-                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
-                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) RETURNING *
-                )
-                INSERT INTO order_extra_topping VALUES ` + order.extraToppings.reduce(
-                    (query, extraTopping) => query + `((SELECT num FROM inserted_order), '${extraTopping}'), `, ""
-                ).slice(0, -2).concat(";"),
-                [receiptNum + 1, order.pizzaName, orderCost, req.body.customerName, req.body.customerPhoneNum]);// insert pizza and extra toppings
-            }
-        }
-        await pool.query("COMMIT;");
-        res.json({ success: true, message: "Order was created successfully." });
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message });
