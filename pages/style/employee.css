@@ -280,7 +280,7 @@ body {
 }
 .wrapper > header > .exit-btn {
   grid-column-start: 4;
-  background-color: limegreen;
+  background-color: red;
   color: white;
   padding: 5px;
   border-radius: 5px;
@@ -298,31 +298,63 @@ main {
 }
 
 main > header {
-  padding: 0 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   border: 3px solid gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
 }
-main > header > input {
-  font: inherit;
-  display: inline-block;
-  width: 150px;
-  border: 1px solid gray;
-  border-radius: 5px;
-  padding: 0 3px;
-}
-main > header > button {
+main > header button {
   background-color: limegreen;
   color: white;
-  margin: 5px 0;
   padding: 3px 5px;
   border-radius: 5px;
   text-align: center;
   font: inherit;
 }
-main > header > #search-btn {
+main > header > .search-section {
+  flex-grow: 1;
+  padding: 5px;
+}
+main > header > .search-section > header {
+  text-align: center;
+}
+main > header > .search-section input {
+  font: inherit;
+  width: 150px;
+  flex-grow: 1;
+  border: 1px solid gray;
+  border-radius: 5px;
+  padding: 0 3px;
+  margin: 3px;
+}
+main > header > .search-section input[name=customer_name] {
+  min-width: 115px;
+}
+main > header > .search-section input[name=customer_phone_num] {
+  min-width: 225px;
+}
+main > header > .search-section input[name=receipt_num] {
+  min-width: 107px;
+  flex-grow: 0;
+}
+main > header > .search-section > div {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+main > header #search-btn {
   background-color: dodgerblue;
 }
+main > header #refresh-btn {
+  height: -moz-min-content;
+  height: min-content;
+  margin: 3px;
+}
+
 section.order {
   width: 100%;
   min-width: -moz-fit-content;

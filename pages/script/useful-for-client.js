@@ -46,6 +46,11 @@ export function setWarningAfterElement(element, warningText) {
     } else {
         element.insertAdjacentHTML("afterend", `<b class="warning">${warningText}</b>`);
     }
+    if (warningText === "") { // if warning text is empty
+        element.nextElementSibling.style.width = "0";// set width of warning element to 0
+    } else {
+        element.nextElementSibling.style.width = "";// set width of warning element to normal
+    }
 }
 export function userNameIsCorrect(inputElement, elementForWarning = null) {
     let warningText = "";

@@ -54,7 +54,7 @@ app.post("/create-order", (req, res, next) => {
     })(req, res, next);
 }, async (req, res) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         if (!req.body.customerName || !req.body.customerPhoneNum || !Array.isArray(req.body.orders) || req.body.orders?.length == 0) {
             throw new Error("Order creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
@@ -63,6 +63,8 @@ app.post("/create-order", (req, res, next) => {
         BEGIN;
         `);
         let result;
+        result = await pool.query(`select now()`);
+        console.log(result.rows);
         result = await pool.query(`
         SELECT MAX(receipt_num) FROM pizza_order;
         `);
@@ -76,8 +78,9 @@ app.post("/create-order", (req, res, next) => {
                 // if no extra topping were selected
                 result = await pool.query(`INSERT INTO pizza_order 
                 (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
-                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) returning *
+                (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) RETURNING datetime;
                 `, [receiptNum + 1, order.pizzaName, orderCost, req.body.customerName, req.body.customerPhoneNum]);// insert only pizza
+                console.log(result.rows);
             } else {
                 // if some extra toppings were selected
                 result = await pool.query(`
@@ -89,16 +92,20 @@ app.post("/create-order", (req, res, next) => {
                 (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
                 (DEFAULT, $1, NOW(), $2, $3, $4, $5, NULL) RETURNING *
                 )
-                INSERT INTO order_extra_topping VALUES ` + order.extraToppings.reduce(
-                    (query, extraTopping, index) => query + `((SELECT num FROM inserted_order), $${index + 6}), `, ""
-                ).slice(0, -2).concat(";"),
-                [receiptNum + 1, order.pizzaName, orderCost, 
-                    req.body.customerName, req.body.customerPhoneNum, 
+                INSERT INTO order_extra_topping VALUES ` + order.extraToppings.map(
+                    (item, index) => `((SELECT num FROM inserted_order), $${index + 6})`
+                ).join(", ").concat("RETURNING (SELECT datetime FROM inserted_order);"),
+                    [receiptNum + 1, order.pizzaName, orderCost,
+                    req.body.customerName, req.body.customerPhoneNum,
                     ...order.extraToppings]);// insert pizza and extra toppings
             }
         }
+        result = await pool.query("UPDATE customer SET last_action_date_time = $1 WHERE name = $2 AND phone_num = $3;",
+            [result.rows[0].datetime, req.body.customerName, req.body.customerPhoneNum]);
+        result = await pool.query(`select now()`);
+        console.log(result.rows);
         await pool.query("COMMIT;");
-        res.json({ success: true, message: "Order was created successfully." });
+        res.json({ success: true, message: "Order was created successfully.", receiptNum: receiptNum + 1 });
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message });

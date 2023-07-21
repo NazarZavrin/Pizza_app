@@ -28,3 +28,27 @@ employeeRouter.propfind("/log-in", (req, res, next) => {
         res.json({ success: false, message: error.message });
     }
 })
+
+employeeRouter.propfind("/get-orders", (req, res, next) => {
+    express.json({
+        limit: req.get('content-length'),
+    })(req, res, next);
+}, async (req, res) => {
+    try {
+        if (!req.body.name) {
+            throw new Error("Employee log in: req.body doesn't contain employee name: " + JSON.stringify(req.body));
+        }
+        let result = await pool.query(`
+        SELECT receipt_num, pizza, datetime, pizza_order.cost,
+        customer_name, customer_phone_num, order_extra_topping.extra_topping
+        FROM pizza_order LEFT JOIN order_extra_topping ON num = order_num
+        WHERE employee IS NULL
+        ORDER BY datetime DESC, pizza ASC;`);
+        console.log(result.rows[0]);
+        let curDateTime = await pool.query(`select now();`);
+        res.json({ success: true, orders: result.rows, curDateTime: curDateTime.rows[0] });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+})

@@ -17,7 +17,7 @@ refreshBtn.addEventListener('click', async event => {
     }
     console.log("refreshing");
     content.style.display = "";
-    /*try {
+    try {
         let requestBody = {
             name: localStorage.getItem("employeeName"),
         };
@@ -33,13 +33,16 @@ refreshBtn.addEventListener('click', async event => {
                 throw new Error(result.errorInfo || "Server error.");
             } else {
                 content.style.display = "";
-                orders.textContent = result.data;
+                console.log(result.orders);
+                console.log(result.orders[0].datetime);
+                console.log(result.curDateTime);
+                // orders.textContent = result.orders;
             }
         }
     } catch (error) {
         alert(error.message);
         return;
-    }*/
+    }
 })
 
 if (localStorage.getItem("employeeName") === null) {

@@ -9,17 +9,7 @@ const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0
 const viewBasketBtn = document.getElementsByClassName("view-basket-btn")[0];
 const content = document.querySelector(".wrapper > main");
 
-let basket = [
-    {
-        cost: "Сума: піца (185 грн.) + добавки (40 грн.) = 225 грн.",
-        extraToppings: ['Шинка', 'Сир пармезан'],
-        pizzaInfo: {
-            ingredients: "інгредієнти: нарізані пепероні, сир моцарела, орегано, базилік",
-            name: "Пепероні",
-            price: "185 грн."
-        }
-    }
-];
+let basket = [];
 let extraToppings = [];
 
 if (localStorage.getItem("customerName") === null) {
@@ -182,7 +172,7 @@ viewBasketBtn.addEventListener('click', event => {
                         console.error(result.message);
                         throw new Error(result.errorInfo || "Server error.");
                     } else {
-                        setWarningAfterElement(orderBtn, `Замовлення оформлено.`);
+                        setWarningAfterElement(orderBtn, `Замовлення оформлено. Номер чеку: ${result.receiptNum || -1}.`);
                         return;
                     }
                 }

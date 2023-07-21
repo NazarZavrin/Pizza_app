@@ -47,7 +47,7 @@ body {
   }
   & > .exit-btn {
     grid-column-start: 4;
-    background-color: limegreen;
+    background-color: red;
     color: white;
     padding: 5px;
     border-radius: 5px;
@@ -63,32 +63,75 @@ main {
   font: 20px "Calibri";
 }
 main > header {
-  padding: 0 5px;
+  display: flex;
+  flex-direction: row;
+  // justify-content: space-between;
+  align-items: center;
   border: 3px solid gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
-  & > input {
-    font: inherit;
-    display: inline-block;
-    width: 150px;
-    border: 1px solid gray;
-    border-radius: 5px;
-    padding: 0 3px;
-  }
-  & > button {
+  & button {
     background-color: limegreen;
     color: white;
-    margin: 5px 0;
     padding: 3px 5px;
     border-radius: 5px;
     text-align: center;
     font: inherit;
   }
-  & > #search-btn {
+  & > .search-section {
+    // display: block;
+    // width: fit-content;
+    flex-grow: 1;
+    padding: 5px;
+    // display: inline-flex;
+    // flex-direction: row;
+    // align-items: center;
+    & > header {
+      text-align: center;
+    }
+    & input {
+      font: inherit;
+      // display: inline-block;
+      width: 150px;
+      // flex: 1 0 150px;
+      flex-grow: 1;
+      border: 1px solid gray;
+      border-radius: 5px;
+      padding: 0 3px;
+      margin: 3px;
+      // customer_na customer_ph pizza_name" receipt_num
+      &[name="customer_name"] {
+        min-width: 115px;
+        // flex-grow: 0;
+      }
+      &[name="customer_phone_num"] {
+        min-width: 225px;
+        // flex-grow: 0;
+      }
+      &[name="pizza_name"] {
+        // flex-grow: 0;
+      }
+      &[name="receipt_num"] {
+        min-width: 107px;
+        flex-grow: 0;
+      }
+    }
+    & > div {
+      // flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      // width: max-content;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  & #search-btn {
     background-color: dodgerblue;
   }
-  & > #refresh-btn {
-
+  & #refresh-btn {
+    height: min-content;
+    margin: 3px;
   }
 }
 section.order {
