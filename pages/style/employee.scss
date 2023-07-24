@@ -128,33 +128,75 @@ main > header {
   }
   & #search-btn {
     background-color: dodgerblue;
+    margin-top: 3px;
   }
   & #refresh-btn {
     height: min-content;
     margin: 3px;
   }
 }
-section.order {
+main > #orders {
   width: 100%;
+  padding: 10px;
   min-width: fit-content;
-  display: grid;
-  grid-template-rows: max-content max-content;
-  grid-template-columns: 75px repeat(4, auto) 70px;
-  grid-template-areas:
-    "image name weight price is_vegetarian add_to_basket_btn"
-    "image ingredients ingredients ingredients ingredients add_to_basket_btn";
-  background-color: white;
-  box-shadow: 0 0 3px 1px gray;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  &:last-of-type {
-    margin-bottom: 0;
-  }
-  & > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-    margin: 3px;
+  display: flex;
+  flex-direction: column;
+  & > .order {
+    width: 100%;
+    min-width: fit-content;
+    // display: flex;
+    // flex-direction: column;
+    padding: 10px;
+    display: grid;
+    grid-template-rows: repeat(6, auto);
+    grid-template-columns: auto min-content;
+    grid-template-areas:
+      "receipt_num issuance_btn"
+      "cost cost"
+      "order_items order_items"
+      "customer_name customer_name"
+      "customer_phone_num customer_phone_num"
+      "datetime datetime";
+    box-shadow: 0 0 3px 1px gray;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+    & > div {
+      display: flex;
+      align-items: center;
+      &.receipt_num {
+        grid-area: receipt_num;
+      }
+      &.customer_name {
+        grid-area: customer_name;
+      }
+      &.customer_phone_num {
+        grid-area: customer_phone_num;
+      }
+      &.datetime {
+        grid-area: datetime;
+      }
+      &.cost {
+        grid-area: cost;
+      }
+      &.order-items {
+        grid-area: order_items;
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+    & > .issuance-btn {
+      grid-area: issuance_btn;
+      white-space: nowrap;
+      background-color: limegreen;
+      color: white;
+      margin-left: 5px;
+      padding: 3px 5px;
+      border-radius: 5px;
+      text-align: center;
+      font: inherit;
+    }
   }
 }

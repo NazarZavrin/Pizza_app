@@ -14,7 +14,7 @@ export function showModalWindow(bodyElement, elementsArray, { showCross = true, 
         });
     }
     eventHandlers.forEach(({ eventName, handler, options = {} }) => modalWindow.addEventListener(eventName, handler, options));
-    modalWindow.closeWindow = function() {
+    modalWindow.closeWindow = function () {
         background.remove();
         background = null;
         document.body.style.overflow = "auto";
@@ -94,4 +94,20 @@ export function emailIsCorrect(inputElement, elementForWarning = null) {
     elementForWarning = elementForWarning || inputElement;
     setWarningAfterElement(elementForWarning, warningText);
     return warningText.length > 0 ? false : true;
+}
+export function isFloat(text) {
+    for (const symbol of text) {
+        if (Number.isNaN(Number(symbol))) {
+            if (symbol === "." || symbol === ",") {
+                if (text.split(/[.,]/).length > 2) {
+                    return "Decimal point was found more than once.";
+                } else {
+                    continue;
+                }
+            }
+            return "Incorrect symbol";
+            
+        }
+    }
+    return "";
 }

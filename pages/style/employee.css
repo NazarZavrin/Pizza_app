@@ -348,6 +348,7 @@ main > header > .search-section > div {
 }
 main > header #search-btn {
   background-color: dodgerblue;
+  margin-top: 3px;
 }
 main > header #refresh-btn {
   height: -moz-min-content;
@@ -355,26 +356,62 @@ main > header #refresh-btn {
   margin: 3px;
 }
 
-section.order {
+main > #orders {
+  width: 100%;
+  padding: 10px;
+  min-width: -moz-fit-content;
+  min-width: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+main > #orders > .order {
   width: 100%;
   min-width: -moz-fit-content;
   min-width: fit-content;
+  padding: 10px;
   display: grid;
-  grid-template-rows: max-content max-content;
-  grid-template-columns: 75px repeat(4, auto) 70px;
-  grid-template-areas: "image name weight price is_vegetarian add_to_basket_btn" "image ingredients ingredients ingredients ingredients add_to_basket_btn";
-  background-color: white;
+  grid-template-rows: repeat(6, auto);
+  grid-template-columns: auto min-content;
+  grid-template-areas: "receipt_num issuance_btn" "cost cost" "order_items order_items" "customer_name customer_name" "customer_phone_num customer_phone_num" "datetime datetime";
   box-shadow: 0 0 3px 1px gray;
   border-radius: 5px;
   margin-bottom: 15px;
 }
-section.order:last-of-type {
+main > #orders > .order:last-of-type {
   margin-bottom: 0;
 }
-section.order > div {
+main > #orders > .order > div {
   display: flex;
-  justify-content: center;
   align-items: center;
+}
+main > #orders > .order > div.receipt_num {
+  grid-area: receipt_num;
+}
+main > #orders > .order > div.customer_name {
+  grid-area: customer_name;
+}
+main > #orders > .order > div.customer_phone_num {
+  grid-area: customer_phone_num;
+}
+main > #orders > .order > div.datetime {
+  grid-area: datetime;
+}
+main > #orders > .order > div.cost {
+  grid-area: cost;
+}
+main > #orders > .order > div.order-items {
+  grid-area: order_items;
+  flex-direction: column;
+  align-items: start;
+}
+main > #orders > .order > .issuance-btn {
+  grid-area: issuance_btn;
   white-space: nowrap;
-  margin: 3px;
+  background-color: limegreen;
+  color: white;
+  margin-left: 5px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  text-align: center;
+  font: inherit;
 }
