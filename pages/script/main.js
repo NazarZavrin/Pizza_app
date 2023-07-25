@@ -48,12 +48,12 @@ content.addEventListener("click", async event => {
                 result = await response.json();
                 // console.log(result);
                 if (!result.success) {
-                    console.error(result.message);
-                    throw new Error(result.errorInfo || "Fetching data error. Please try again.");
+                    throw new Error(result.message || "Fetching data error. Please try again.");
                 }
             }
         } catch (error) {
-            alert(error.message);
+            console.error(error.message);
+            alert("Error");
             return;
         }
         extraToppings = result.data;
@@ -123,7 +123,7 @@ viewBasketBtn.addEventListener('click', event => {
     function updateTotalCost() {
         totalCostElem.textContent = `Сума замовлення: ${basket.reduce(
             (totalCost, order) => totalCost + Number.parseFloat(order.cost.match(/= (\d+)/)[1]), 0)
-        } грн.`;
+            } грн.`;
         if (totalCostElem.textContent.includes(": 0 грн")) {
             orders.textContent = "Кошик пустий";
             totalCostElem.textContent = "";
@@ -148,7 +148,8 @@ viewBasketBtn.addEventListener('click', event => {
         if (localStorage.getItem("customerName") !== null) {
             try {
                 if (basket.length === 0) {
-                    throw new Error("Кошик пустий!");
+                    alert("Кошик пустий!");
+                    return;
                 }
                 let requestBody = {
                     customerName: localStorage.getItem("customerName"),
@@ -169,15 +170,15 @@ viewBasketBtn.addEventListener('click', event => {
                     let result = await response.json();
                     console.log(result);
                     if (!result.success) {
-                        console.error(result.message);
-                        throw new Error(result.errorInfo || "Server error.");
+                        throw new Error(result.message || "Server error.");
                     } else {
                         setWarningAfterElement(orderBtn, `Замовлення оформлено. Номер чеку: ${result.receiptNum || -1}.`);
                         return;
                     }
                 }
             } catch (error) {
-                alert(error.message);
+                console.error(error.message);
+                alert("Error");
                 return;
             }
         } else {
@@ -246,8 +247,7 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
                         setWarningAfterElement(logInBtn, `Знайдено декілька покупців з такими даними. Введіть додаткове дане (ім'я чи номер телефону) для уточнення пошуку.`);
                         return;
                     }
-                    console.error(result.message);
-                    throw new Error(result.errorInfo || "Server error.");
+                    throw new Error(result.message || "Server error.");
                 } else {
                     customerName.textContent = result.customerData.name;
                     customerName.style.display = "";
@@ -256,7 +256,8 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
                 }
             }
         } catch (error) {
-            alert(error.message);
+            console.error(error.message);
+            alert("Error");
             return;
         }
         changeAccountBtn.textContent = "Змінити акаунт";
@@ -323,8 +324,7 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
                         setWarningAfterElement(createAccountBtn, 'Покупець з таким іменем та номером телефону вже існує');
                         return;
                     }
-                    console.error(result.message);
-                    throw new Error(result.errorInfo || "Server error.");
+                    throw new Error(result.message || "Server error.");
                 } else {
                     customerName.textContent = result.customerData.name;
                     customerName.style.display = "";
@@ -333,7 +333,8 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
                 }
             }
         } catch (error) {
-            alert(error.message);
+            console.error(error.message);
+            alert("Error");
             return;
         }
         changeAccountBtn.textContent = "Змінити акаунт";

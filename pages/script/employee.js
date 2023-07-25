@@ -31,8 +31,7 @@ refreshBtn.addEventListener('click', async event => {
         if (response.ok) {
             let result = await response.json();
             if (!result.success) {
-                console.error(result.message);
-                throw new Error(result.errorInfo || "Server error.");
+                throw new Error(result.message || "Server error.");
             } else {
                 content.style.display = "";
                 console.log(result.orders);
@@ -55,8 +54,8 @@ refreshBtn.addEventListener('click', async event => {
             }
         }
     } catch (error) {
-        alert(error.message);
-        return;
+        console.error(error.message);
+        alert("Error");
     }
 })
 
@@ -112,8 +111,7 @@ function showRegistrationWindow() {
                         setWarningAfterElement(logInBtn, `Співробітника з такими даними не існує`);
                         return;
                     }
-                    console.error(result.message);
-                    throw new Error(result.errorInfo || "Server error.");
+                    throw new Error(result.message || "Server error.");
                 } else {
                     employeeName.textContent = result.employeeData.name;
                     employeeName.style.display = "";
@@ -122,7 +120,8 @@ function showRegistrationWindow() {
                 }
             }
         } catch (error) {
-            alert(error.message);
+            console.error(error.message);
+            alert("Error");
             return;
         }
         changeAccountBtn.textContent = "Змінити акаунт";
@@ -135,9 +134,12 @@ function showRegistrationWindow() {
 }
 
 function renderOrders() {
+    if (!orders || orders.length === 0) {
+        ordersContainer.textContent = "Невидані замовлення відсутні";
+        return;
+    }
     ordersContainer.innerHTML = '';
-    orders.forEach(orderInfo => {
-        // console.log(orderInfo);
+    orders?.forEach(orderInfo => {
         if (!orderInfo.element) {
             orderInfo.element = createElement({ name: 'div', class: 'order' });
             const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + orderInfo.receipt_num });
@@ -173,15 +175,16 @@ ordersContainer.addEventListener('click', event => {
         return;
     }
     let orderIndex = [...ordersContainer.querySelectorAll('.issuance-btn')].findIndex(btn => btn === issuanceBtn);
-    console.log(orderIndex);
-    console.log(orders[orderIndex]);
     const header = createElement({ name: "header", content: 'Видача замовлення' });
     const сostElem = createElement({ class: 'cost', content: 'Вартість: ' + orders[orderIndex].cost + ' грн.' });
     const paidLabel = createElement({ name: "header", content: "Заплачено (грн.):" });
     const paidInput = createElement({ name: "input" });
     paidInput.setAttribute("autocomplete", "off");
     const changeLabel = createElement({ name: "header", content: 'Введіть заплачену суму' });
+    const issueBtn = createElement({ name: 'button', content: "Видати", class: "issue-btn" });
+    // issueBtn.style.display = "none";
     paidInput.addEventListener("input", event => {
+        // issueBtn.style.display = "none";
         let warningText = "";
         if (paidInput.value.length === 0) {
             warningText = 'Введіть заплачену суму';
@@ -204,9 +207,21 @@ ordersContainer.addEventListener('click', event => {
             changeLabel.textContent = 'Сплачено недостатньо';
         } else {
             changeLabel.textContent = `Решта: ${change.toFixed(2)} грн.`;
+            issueBtn.style.display = "";
         }
     })
-    const issueBtn = createElement({ name: 'button', content: "Видати", class: "issue-btn" });
+    issueBtn.addEventListener('click', event => {
+        paidInput.dispatchEvent(new Event('input'));
+        if (changeLabel.textContent.match(/Решта: [\d.,]+ грн./)) {
+            orders = orders.filter((item, index) => index !== orderIndex);
+            event.target.closest(".modal-window").closeWindow();
+            renderOrders();
+        } else {
+            alert(paidInput.nextElementSibling.textContent 
+                || changeLabel.textContent ||
+                "Введіть коректне і достатнє значення заплаченої суми");
+        }
+    })
     showModalWindow(document.body,
         [header, сostElem, paidLabel, paidInput, changeLabel, issueBtn],
         { className: 'issuance' });

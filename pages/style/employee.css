@@ -363,6 +363,7 @@ main > #orders {
   min-width: fit-content;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 main > #orders > .order {
   width: 100%;

@@ -49,20 +49,17 @@ employeeRouter.propfind("/get-orders", (req, res, next) => {
         FROM pizza_order
         WHERE employee IS NULL
         ORDER BY datetime DESC, pizza ASC;`);
-        // console.log(result.rows[0]);
         // ↓ add array of extraToppings to each order
         let orders = result.rows.map(order => {
             order.extra_toppings = [];
             return order;
         });
-        console.log(orders[0]);
         // ↓ Task 2: get all extra toppings
         result = await pool.query(`
         SELECT order_extra_topping.extra_topping, order_extra_topping.order_num 
         FROM order_extra_topping INNER JOIN pizza_order ON num = order_num
         WHERE employee IS NULL
         ORDER BY datetime DESC, pizza ASC;`);
-        console.log(result.rows[0]);
         // ↓ Task 3: add to each order it's extraToppings
         orders.forEach(order => {
             for (const extraToppingInfo of result.rows) {
