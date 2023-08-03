@@ -63,6 +63,8 @@ CREATE TABLE pizza_order (
   FOREIGN KEY (customer_name, customer_phone_num) REFERENCES customer (name, phone_num),
   employee VARCHAR(50) NULL DEFAULT NULL REFERENCES employee (name)
 );
+ALTER TABLE pizza_order ADD paid DECIMAL NULL DEFAULT NULL;
+ALTER TABLE pizza_order ADD issuance_datetime TIMESTAMP NULL DEFAULT NULL;
 
 CREATE TABLE order_extra_topping (
   order_num BIGINT NOT NULL REFERENCES pizza_order(num),

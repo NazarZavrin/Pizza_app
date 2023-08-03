@@ -11,8 +11,11 @@ list of pizzas with extra toppings, cost),
 2) pizza delivery and receipt forming, 
 3) record of pizzas, 
 > Search filters: 
-1) the name of the pizza, 
-2) number of the order, 
-3) orders for the period, 
+1) number of the order,
+2) the name of the pizza, 
+3) customer's name,
+4) customer's phone num,
+5) orders for the period, 
+> Sorting by receipt num (equals to sorting by date), customer name. Ability to change sorting type (asc/desc).
 > Report for the period with the number of receipts, 
 total cost, average cost of the receipt

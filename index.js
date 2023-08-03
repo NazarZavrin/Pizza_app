@@ -77,8 +77,8 @@ app.post("/create-order", (req, res, next) => {
             if (order.extraToppings === undefined) {
                 // if no extra topping were selected
                 result = await pool.query(`INSERT INTO pizza_order 
-                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
-                (DEFAULT, $1, $2, $3, $4, $5, $6, NULL) RETURNING datetime;
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee, paid, issuance_datetime) VALUES
+                (DEFAULT, $1, $2, $3, $4, $5, $6, NULL, NULL, NULL) RETURNING datetime;
                 `, [receiptNum, currentDateTime, order.pizzaName, orderCost, req.body.customerName, req.body.customerPhoneNum]);// insert only pizza
             } else {
                 // if some extra toppings were selected
@@ -88,8 +88,8 @@ app.post("/create-order", (req, res, next) => {
                 orderCost += Number.parseFloat(result.rows[0].sum);
                 result = await pool.query(`WITH inserted_order AS (
                 INSERT INTO pizza_order 
-                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee) VALUES
-                (DEFAULT, $1, $2, $3, $4, $5, $6, NULL) RETURNING *
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee, paid, issuance_datetime) VALUES
+                (DEFAULT, $1, $2, $3, $4, $5, $6, NULL, NULL, NULL) RETURNING *
                 )
                 INSERT INTO order_extra_topping VALUES ` + order.extraToppings.map(
                     (item, index) => `((SELECT num FROM inserted_order), $${index + 7})`

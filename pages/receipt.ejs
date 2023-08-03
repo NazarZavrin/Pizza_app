@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receipt №<%= receipt_num %></title>
+    <link rel="stylesheet" href="/style/receipt.css"/>
+    <meta name="Author" content="Nazar Zavrin" />
+    <meta name="Copyright" content="Nazar Zavrin" />
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>Pizza app (made by Nazar Zavrin)</header>
+        <div class="receipt_num">Чек №</div>
+        <div class="receipt_body"></div>
+        <div class="receipt_payment">
+            <div class="cost"></div>
+            <div class="paid"></div>
+            <div class="change"></div>
+        </div>
+        <div class="customer_name">Покупець: </div>
+        <div class="employee">Співробітник: </div>
+        <div class="datetime">Замовленно: </div>
+        <div class="issuance_datetime">Видано: </div>
+    </div>
+    <script src="/script/receipt.js" type="module"></script>
+</body>
+
+</html>

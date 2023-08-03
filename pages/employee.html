@@ -20,16 +20,48 @@
                 <section class="search-section">
                     <header>Фільтри для пошуку:</header>
                     <div class="search-inputs">
-                        <input name="customer_name" type="text" placeholder="Ім'я покупця">
-                        <input name="customer_phone_num" type="text" placeholder="Номер телефону покупця">
+                        <input name="receipt_num" type="tel" placeholder="Номер чеку">
                         <input name="pizza_name" type="text" placeholder="Назва піци">
-                        <input name="receipt_num" type="text" placeholder="Номер чеку">
+                        <input name="customer_name" type="text" placeholder="Ім'я покупця">
+                        <input name="customer_phone_num" type="tel" placeholder="Номер телефону покупця">
                     </div>
+                    <section id="datetime-period">
+                        <span>Замовлення за період</span>
+                        <div class="datetime-component">
+                            <label>від:</label>
+                            <input name="day" type="tel" placeholder="21">
+                            <input name="month" type="tel" placeholder="03">
+                            <input name="year" type="tel" placeholder="2014">
+                        </div>
+                        <div class="datetime-component">
+                            <label>до:</label>
+                            <input name="day" type="tel" placeholder="27">
+                            <input name="month" type="tel" placeholder="06">
+                            <input name="year" type="tel" placeholder="2014">
+                        </div>
+                    </section>
                     <div>
                         <button id="search-btn">Шукати</button>
                     </div>
                 </section>
-                <button id="refresh-btn">Оновити дані</button>
+                <section class="actions-section">
+                    
+                    <!-- <button id="more-search-filters-btn">Показати більше фільтрів пошуку</button> -->
+                    <section class="actions-section__sorting">
+                        <label for="sort-by">Сортувати за:</label>
+                        <select id="sort-by">
+                            <option>Номером замовлення</option>
+                            <option>Ім'ям покупця</option>
+                        </select>
+                        <label for="sort-by">Порядок сортування:</label>
+                        <select id="sort-by">
+                            <option>Від більшого до меншого</option>
+                            <option>Від меншого до більшого</option>
+                        </select>
+                    </section>
+                    <button id="refresh-btn">Оновити дані</button>
+                </section>
+
             </header>
             <section id="orders"></section>
         </main>
@@ -37,4 +69,5 @@
     <script src="./script/employee.js" type="module"></script>
     <script src="./script/polyfills.js"></script>
 </body>
+
 </html>

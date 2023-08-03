@@ -1,0 +1,118 @@
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+:focus, :active {
+  outline: none;
+}
+
+a:focus, a:active {
+  outline: none;
+}
+
+nav, footer, header, aside {
+  display: block;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-size: 100%;
+  line-height: 1;
+  font-size: 14px;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+input, button, textarea {
+  font-family: inherit;
+}
+
+input::-ms-clear {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+a, a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+ul li {
+  list-style: none;
+}
+
+img {
+  vertical-align: top;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: 400;
+}
+
+html, body {
+  width: 300px;
+}
+
+.wrapper {
+  font: 18px "Arial";
+  padding: 5px;
+  border: 1px solid gray;
+}
+
+header {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.receipt_num {
+  text-align: center;
+  border-bottom: 1px dashed black;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+}
+
+.receipt_body {
+  display: grid;
+  grid-template-columns: auto max-content;
+  grid-auto-rows: auto;
+}
+.receipt_body > .order-item-cost {
+  justify-self: end;
+  align-self: end;
+}
+
+.receipt_payment {
+  display: grid;
+  grid-template-columns: auto max-content;
+  grid-auto-rows: auto;
+  border: 1px dashed black;
+  border-left: 0;
+  border-right: 0;
+  margin: 5px 0;
+  padding: 5px 0;
+}
+.receipt_payment > div[class] {
+  justify-self: end;
+  align-self: end;
+}

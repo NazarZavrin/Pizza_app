@@ -2,6 +2,7 @@
 
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
+console.info(`"Log out buttons" must erase data from local storage`);
 // console.info(``);
 
 const customerName = document.getElementById("customer-name");

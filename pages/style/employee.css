@@ -298,9 +298,7 @@ main {
 }
 
 main > header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  padding: 5px;
   border: 3px solid gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
@@ -308,6 +306,8 @@ main > header {
 main > header button {
   background-color: limegreen;
   color: white;
+  width: -moz-fit-content;
+  width: fit-content;
   padding: 3px 5px;
   border-radius: 5px;
   text-align: center;
@@ -315,7 +315,9 @@ main > header button {
 }
 main > header > .search-section {
   flex-grow: 1;
-  padding: 5px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
 }
 main > header > .search-section > header {
   text-align: center;
@@ -346,14 +348,60 @@ main > header > .search-section > div {
   justify-content: center;
   align-items: center;
 }
+main > header > .search-section > #datetime-period {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  border: 1px solid dimgray;
+  padding: 5px;
+  padding-top: 3px;
+  margin: 3px;
+  border-radius: 3px;
+}
+main > header > .search-section > #datetime-period > span {
+  width: 100%;
+  text-align: center;
+}
+main > header > .search-section > #datetime-period .datetime-component {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+main > header > .search-section > #datetime-period .datetime-component > input[name] {
+  width: 30px;
+}
+main > header > .search-section > #datetime-period .datetime-component > input[name=year] {
+  width: 60px;
+}
 main > header #search-btn {
   background-color: dodgerblue;
   margin-top: 3px;
 }
 main > header #refresh-btn {
-  height: -moz-min-content;
-  height: min-content;
-  margin: 3px;
+  margin: 7px 0;
+}
+main > header > .actions-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+main > header > .actions-section label {
+  text-align: center;
+  margin-top: 3px;
+  font: inherit;
+  font-size: 16px;
+}
+main > header > .actions-section select {
+  border: 1px solid dimgray;
+  font: inherit;
+  font-size: 16px;
+}
+main > header > .actions-section > .actions-section__sorting {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
 }
 
 main > #orders {
@@ -415,4 +463,18 @@ main > #orders > .order > .issuance-btn {
   border-radius: 5px;
   text-align: center;
   font: inherit;
+}
+
+@media (min-width: 620px) {
+  main > header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  main > header > .actions-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }

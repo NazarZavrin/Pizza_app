@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, isFloat, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, isFloat, normalizeOrders, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 const employeeName = document.getElementById("employee-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
@@ -17,7 +17,6 @@ refreshBtn.addEventListener('click', async event => {
         showRegistrationWindow();
         return;
     }
-    console.log("refreshing");
     content.style.display = "";
     try {
         let requestBody = {
@@ -35,20 +34,7 @@ refreshBtn.addEventListener('click', async event => {
             } else {
                 content.style.display = "";
                 console.log(result.orders);
-                orders = result.orders?.reduce((prev, item) => {
-                    if (prev.length === 0 || item.receipt_num !== prev.at(-1).receipt_num) {
-                        item.orderItems = [
-                            { pizza: item.pizza, extra_toppings: item.extra_toppings }
-                        ];
-                        delete item.pizza;
-                        delete item.extra_toppings;
-                        prev.push(item);
-                    } else {
-                        prev.at(-1).orderItems.push({ pizza: item.pizza, extra_toppings: item.extra_toppings });
-                        prev.at(-1).cost = Number(prev.at(-1).cost) + Number(item.cost);
-                    }
-                    return prev;
-                }, []);
+                orders = normalizeOrders(result.orders);
                 console.log(orders);
                 renderOrders();
             }
@@ -69,7 +55,10 @@ if (localStorage.getItem("employeeName") === null) {
     changeAccountBtn.textContent = "Змінити акаунт";
     refreshBtn.click();
 }
-exitBtn.addEventListener("click", event => location.href = location.href.slice(0, location.href.indexOf("/orders")));
+exitBtn.addEventListener("click", event => {
+    localStorage.removeItem("employeeName");
+    location.href = location.href.slice(0, location.href.indexOf("/orders"));
+});
 
 changeAccountBtn.addEventListener("click", event => {
     showRegistrationWindow();
@@ -182,9 +171,9 @@ ordersContainer.addEventListener('click', event => {
     paidInput.setAttribute("autocomplete", "off");
     const changeLabel = createElement({ name: "header", content: 'Введіть заплачену суму' });
     const issueBtn = createElement({ name: 'button', content: "Видати", class: "issue-btn" });
-    // issueBtn.style.display = "none";
+    issueBtn.style.display = "none";
     paidInput.addEventListener("input", event => {
-        // issueBtn.style.display = "none";
+        issueBtn.style.display = "none";
         let warningText = "";
         if (paidInput.value.length === 0) {
             warningText = 'Введіть заплачену суму';
@@ -210,14 +199,40 @@ ordersContainer.addEventListener('click', event => {
             issueBtn.style.display = "";
         }
     })
-    issueBtn.addEventListener('click', event => {
+    issueBtn.addEventListener('click', async event => {
         paidInput.dispatchEvent(new Event('input'));
         if (changeLabel.textContent.match(/Решта: [\d.,]+ грн./)) {
-            orders = orders.filter((item, index) => index !== orderIndex);
+            try {
+                let requestBody = {
+                    receiptNum: orders[orderIndex].receipt_num,
+                    employeeName: localStorage.getItem("employeeName"),
+                    paid: Number(paidInput.value.split(",").join("."))
+                };
+                let response = await fetch(location.href + "/issue", {
+                    method: "PATCH",
+                    body: JSON.stringify(requestBody),
+                    headers: { "Content-Type": "application/json" }
+                })
+                if (response.ok) {
+                    let result = await response.json();
+                    if (!result.success) {
+                        throw new Error(result.message || "Server error.");
+                    } else {
+                        refreshBtn.click();
+                        let receiptLink = document.createElement("a");
+                        receiptLink.setAttribute('target', '_blank');
+                        receiptLink.href = location.href + `/${requestBody.receiptNum}`;
+                        receiptLink.click();
+                    }
+                }
+            } catch (error) {
+                console.error(error.message);
+                alert("Error");
+                return;
+            }
             event.target.closest(".modal-window").closeWindow();
-            renderOrders();
         } else {
-            alert(paidInput.nextElementSibling.textContent 
+            alert(paidInput.nextElementSibling.textContent
                 || changeLabel.textContent ||
                 "Введіть коректне і достатнє значення заплаченої суми");
         }

@@ -1,5 +1,6 @@
 @import "./null-style.scss";
 @import "./modal-window.scss";
+@import "./select.scss";
 html,
 body {
   display: flex;
@@ -63,16 +64,18 @@ main {
   font: 20px "Calibri";
 }
 main > header {
-  display: flex;
-  flex-direction: row;
-  // justify-content: space-between;
-  align-items: center;
+  // display: flex;
+  // flex-direction: row;
+  // // justify-content: space-between;
+  // align-items: center;
+  padding: 5px;
   border: 3px solid gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
   & button {
     background-color: limegreen;
     color: white;
+    width: fit-content;
     padding: 3px 5px;
     border-radius: 5px;
     text-align: center;
@@ -82,10 +85,9 @@ main > header {
     // display: block;
     // width: fit-content;
     flex-grow: 1;
-    padding: 5px;
-    // display: inline-flex;
-    // flex-direction: row;
-    // align-items: center;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
     & > header {
       text-align: center;
     }
@@ -125,14 +127,76 @@ main > header {
       justify-content: center;
       align-items: center;
     }
+    & > #datetime-period {
+      display: inline-flex;
+      // width: fit-content;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      // justify-content: center;
+      // flex-shrink: 1;
+      // align-items: center;
+      border: 1px solid dimgray;
+      padding: 5px;
+      padding-top: 3px;
+      margin: 3px;
+      border-radius: 3px;
+      & > span {
+        // flex: 1 0 100%;
+        width: 100%;
+        // max-width: 100%;
+        // display: inline-block;
+        // min-width: min-content;
+        text-align: center;
+      }
+      .datetime-component {
+        display: inline-flex;
+        // flex: 0 0 fit-content;
+        flex-direction: row;
+        align-items: center;
+        & > input[name] {
+          width: 30px;
+        }
+        & > input[name="year"] {
+          width: 60px;
+        }
+      }
+    }
   }
+
   & #search-btn {
     background-color: dodgerblue;
     margin-top: 3px;
   }
+  // & #more-search-filters-btn {
+  //   background-color: dodgerblue;
+  // }
   & #refresh-btn {
-    height: min-content;
-    margin: 3px;
+    // height: min-content;
+    margin: 7px 0;
+  }
+  & > .actions-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    // margin-left: 3px;
+    & label {
+      text-align: center;
+      margin-top: 3px;
+      font: inherit;
+      font-size: 16px;
+    }
+    & select {
+      border: 1px solid dimgray;
+      font: inherit;
+      font-size: 16px;
+    }
+    & > .actions-section__sorting {
+      display: flex;
+      flex-direction: column;
+      margin: 5px;
+    }
   }
 }
 main > #orders {
@@ -198,6 +262,21 @@ main > #orders {
       border-radius: 5px;
       text-align: center;
       font: inherit;
+    }
+  }
+}
+@media (min-width: 620px) {
+  main > header {
+    display: flex;
+    flex-direction: row;
+    // justify-content: space-between;
+    align-items: center;
+    & > .actions-section {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      // justify-content: space-evenly;
+      align-items: center;
     }
   }
 }
