@@ -93,7 +93,8 @@ content.addEventListener("click", async event => {
         basket.push(order);
         this.closest(".modal-window").closeWindow();
     });
-    showModalWindow(document.body, [header, extraToppingsContainer, orderCostElem, confirmBtn], { className: 'confirm' });
+    showModalWindow([header, extraToppingsContainer,
+        orderCostElem, confirmBtn], { className: 'confirm' });
 })
 
 viewBasketBtn.addEventListener('click', event => {
@@ -187,8 +188,8 @@ viewBasketBtn.addEventListener('click', event => {
             showRegistrationWindow("show basket after registration");
         }
     });
-    showModalWindow(document.body,
-        [currentCustomerLabel, orders, totalCostElem, orderBtn],
+    showModalWindow([currentCustomerLabel, orders,
+        totalCostElem, orderBtn],
         { className: 'basket' });
 })
 
@@ -278,11 +279,11 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
     enterAsEmployeeBtn.addEventListener("click", event => {
         location.href += "orders";
     });
-    showModalWindow(document.body,
-        [currentCustomerLabel, currentCustomerLabel ? separator.cloneNode(true) : null,
-            header, nameLabel, nameInput,
-            phoneNumberLabel, phoneNumberInput, logInBtn,
-            createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
+    showModalWindow([currentCustomerLabel,
+        currentCustomerLabel ? separator.cloneNode(true) : null,
+        header, nameLabel, nameInput,
+        phoneNumberLabel, phoneNumberInput, logInBtn,
+        createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
         { className: 'registration' });
 }
 function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
@@ -344,8 +345,7 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
             viewBasketBtn.click();
         }
     });
-    showModalWindow(document.body,
-        [header, nameLabel, nameInput,
+    showModalWindow([header, nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput,
             emailLabel, emailInput, createAccountBtn],
         { className: 'create-account' });

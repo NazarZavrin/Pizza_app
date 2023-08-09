@@ -8,8 +8,6 @@ body {
   min-height: 100vh;
 }
 .wrapper {
-  display: flex;
-  flex-direction: column;
   width: 100%;
   min-width: fit-content;
   height: fit-content;
@@ -19,14 +17,21 @@ body {
   ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
   а на экране шириной 1200 пикселей – размер 24 пикселя. */
 }
+button {
+  background-color: limegreen;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font: inherit;
+  text-align: center;
+}
 .wrapper > header {
   width: 100%;
   height: 50px;
   position: fixed;
   display: grid;
-  grid-template-rows: min-content;
+  grid-template-rows: auto;
   grid-template-columns: auto auto 1fr auto;
-  justify-content: center;
   align-content: center;
   padding: 7px;
   font: 20px "Calibri";
@@ -40,18 +45,9 @@ body {
   }
   & > .change-account-btn {
     background-color: dodgerblue;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    font: inherit;
   }
   & > .view-basket-btn {
     grid-column-start: 4;
-    background-color: limegreen;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    font: inherit;
   }
 }
 main {
@@ -60,25 +56,30 @@ main {
   margin-top: 50px; // the height of header
   min-width: fit-content;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
   font: 20px "Calibri";
 }
 section.pizza {
-  width: 100%;
-  min-width: fit-content;
+  width: fit-content;
   display: grid;
-  grid-template-rows: max-content max-content;
-  grid-template-columns: 75px repeat(4, auto) 70px;
+  grid-auto-rows: auto;
+  grid-template-columns: repeat(2, 100px);
   grid-template-areas:
-    "image name weight price is_vegetarian add_to_basket_btn"
-    "image ingredients ingredients ingredients ingredients add_to_basket_btn";
+    "image image"
+    "name name"
+    "ingredients ingredients"
+    "weight price"
+    "is_vegetarian is_vegetarian"
+    "add_to_basket_btn add_to_basket_btn";
   background-color: white;
   box-shadow: 0 0 3px 1px gray;
   border-radius: 5px;
-  margin-bottom: 15px;
-  &:last-of-type {
-    margin-bottom: 0;
-  }
+  margin: 10px;
+  // &:last-of-type {
+  //   margin-bottom: 0;
+  // }
   & > div {
     display: flex;
     justify-content: center;
@@ -104,11 +105,13 @@ section.pizza {
   & > .pizza__price {
     grid-area: price;
   }
-  & > .pizza__is_vegetarian {
+  & > .pizza__is-vegetarian {
     grid-area: is_vegetarian;
   }
   & > .image {
     grid-area: image;
+    width: 200px;
+    height: 200px;
     display: flex;
     background-color: #eee;
     margin: 0;
@@ -119,15 +122,6 @@ section.pizza {
   }
   & > button[type="button"] {
     grid-area: add_to_basket_btn;
-    // height: min-content;
-    justify-self: center;
-    align-self: center;
-    background-color: limegreen;
-    color: white;
-    padding: 0 3px;
-    margin: 3px;
-    border-radius: 5px;
-    font: inherit;
-    font-size: 16px;
+    margin: 5px;
   }
 }

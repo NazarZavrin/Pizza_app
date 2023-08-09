@@ -89,7 +89,6 @@ employeeRouter.patch("/issue", (req, res, next) => {
         if (!req.body.receiptNum || !req.body.employeeName || !req.body.paid) {
             throw new Error("Employee log in: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
-        console.log(req.body);
         await pool.query(`
         SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
         BEGIN;

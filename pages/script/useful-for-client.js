@@ -1,4 +1,4 @@
-export function showModalWindow(bodyElement, elementsArray, { showCross = true, style = "", className = "", attributes = [], handlers: eventHandlers = [] } = {}) {
+export function showModalWindow(elementsArray, { style = "", className = "", handlers: eventHandlers = [], showCross = true, bodyElement = document.body } = {}) {
     let modalWindow = createElement({ name: "div", class: "modal-window " + className, style: style });
     elementsArray.forEach(element => {
         if (element) {
@@ -52,27 +52,27 @@ export function setWarningAfterElement(element, warningText) {
         element.nextElementSibling.style.width = "";// set width of warning element to normal
     }
 }
-export function userNameIsCorrect(inputElement, elementForWarning = null) {
+export function userNameIsCorrect(inputElement, elementForWarning = null, beginning = "Ім'я") {
     let warningText = "";
     if (inputElement.value.length > 50) {
-        warningText = "Ім'я не повинно бути більше, ніж 50 символів.";
+        warningText = beginning + " не повинно бути більше, ніж 50 символів.";
     } else if (inputElement.value.length < 3) {
-        warningText = "Ім'я не повинно бути менше, ніж 3 символи.";
+        warningText = beginning + " не повинно бути менше, ніж 3 символи.";
     }
     elementForWarning = elementForWarning || inputElement;
     setWarningAfterElement(elementForWarning, warningText);
     return warningText.length > 0 ? false : true;
 }
-export function phoneNumberIsCorrect(inputElement, elementForWarning = null) {
+export function phoneNumberIsCorrect(inputElement, elementForWarning = null, beginning = "Номер телефону") {
     let warningText = "";
     if (inputElement.value.length > 20) {
-        warningText = "Номер телефону не повинен бути більше, ніж 20 символів.";
+        warningText = beginning + " не повинен бути більше, ніж 20 символів.";
     } else if (inputElement.value.length < 3) {
-        warningText = "Номер телефону не повинен бути менше, ніж 3 символи.";
+        warningText = beginning + " не повинен бути менше, ніж 3 символи.";
     } else {
         for (const symbol of inputElement.value) {
             if (Number.isNaN(Number(symbol))) {
-                warningText = "Номер телефону повинен складатися лише з чисел.";
+                warningText = beginning + " повинен складатися лише з цифр.";
                 break;
             }
         }
@@ -95,6 +95,17 @@ export function emailIsCorrect(inputElement, elementForWarning = null) {
     setWarningAfterElement(elementForWarning, warningText);
     return warningText.length > 0 ? false : true;
 }
+export function isInt(text) {
+    for (const symbol of text) {
+        if (Number.isNaN(Number(symbol))) {
+            if (symbol === "." || symbol === ",") {
+                return "Decimal point can't be present in integer.";
+            }
+            return "Incorrect symbol.";
+        }
+    }
+    return "";
+}
 export function isFloat(text) {
     for (const symbol of text) {
         if (Number.isNaN(Number(symbol))) {
@@ -105,11 +116,31 @@ export function isFloat(text) {
                     continue;
                 }
             }
-            return "Incorrect symbol";
-            
+            return "Incorrect symbol.";
         }
     }
     return "";
+}
+export function checkDayAndMonth(day, month) {
+    let dayAndMonthAreCorrect = true;
+    if (day > 31 || day <= 0) {
+        dayAndMonthAreCorrect = false;
+    }
+    if (month > 12 || month <= 0) {
+        dayAndMonthAreCorrect = false;
+    }
+    // в квітні (4), червні (6), вересні (9) та листопаді (11) 30 днів
+    // в січні (1), березні (3), травні (5), липні (7),
+    //  серпні (8), жовтні (10) та грудні (12) 31 день
+    // в лютому (2) максимум 29 днів (у високосному році)
+    if (month == 2 && day > 29) {
+        dayAndMonthAreCorrect = false;
+    } else if (day == 31) {
+        if (month == 4 || month == 6 || month == 9 || month == 11) {
+            dayAndMonthAreCorrect = false;
+        }
+    }
+    return dayAndMonthAreCorrect;
 }
 
 export function normalizeOrders(orders) {

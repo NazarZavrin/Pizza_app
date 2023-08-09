@@ -1,6 +1,5 @@
 @import "./null-style.scss";
 @import "./modal-window.scss";
-@import "./select.scss";
 html,
 body {
   display: flex;
@@ -15,22 +14,29 @@ body {
   min-width: fit-content;
   height: fit-content;
   min-height: 100vh;
+  font: 20px "Calibri";
   /*
   font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)));
   ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
   а на экране шириной 1200 пикселей – размер 24 пикселя. */
+}
+button {
+  background-color: limegreen;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font: inherit;
+  text-align: center;
 }
 .wrapper > header {
   width: 100%;
   height: 50px;
   position: fixed;
   display: grid;
-  grid-template-rows: min-content;
+  grid-template-rows: auto;
   grid-template-columns: auto auto 1fr auto;
-  justify-content: center;
   align-content: center;
   padding: 7px;
-  font: 20px "Calibri";
   color: white;
   background-color: blue;
   & > #employee-name {
@@ -41,18 +47,10 @@ body {
   }
   & > .change-account-btn {
     background-color: dodgerblue;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    font: inherit;
   }
   & > .exit-btn {
     grid-column-start: 4;
     background-color: red;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
-    font: inherit;
   }
 }
 main {
@@ -61,7 +59,6 @@ main {
   min-width: fit-content;
   display: flex;
   flex-direction: column;
-  font: 20px "Calibri";
 }
 main > header {
   // display: flex;
@@ -69,22 +66,25 @@ main > header {
   // // justify-content: space-between;
   // align-items: center;
   padding: 5px;
-  border: 3px solid gray;
+  border: 1.5px solid dimgray;
+  box-shadow: 0 1px 3px 1px gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
   & button {
-    background-color: limegreen;
-    color: white;
     width: fit-content;
-    padding: 3px 5px;
-    border-radius: 5px;
+  }
+  & .warning {
+    max-width: 100%;
+    // width: 200px;
+    display: inline-block;
+    font-size: 14px;
+    color: red;
     text-align: center;
-    font: inherit;
+    word-wrap: break-word;
   }
   & > .search-section {
     // display: block;
     // width: fit-content;
-    flex-grow: 1;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -101,7 +101,6 @@ main > header {
       border-radius: 5px;
       padding: 0 3px;
       margin: 3px;
-      // customer_na customer_ph pizza_name" receipt_num
       &[name="customer_name"] {
         min-width: 115px;
         // flex-grow: 0;
@@ -110,9 +109,9 @@ main > header {
         min-width: 225px;
         // flex-grow: 0;
       }
-      &[name="pizza_name"] {
-        // flex-grow: 0;
-      }
+      // &[name="pizza_name"] {
+      //   flex-grow: 0;
+      // }
       &[name="receipt_num"] {
         min-width: 107px;
         flex-grow: 0;
@@ -126,6 +125,9 @@ main > header {
       // width: max-content;
       justify-content: center;
       align-items: center;
+      &:has(#search-btn){
+        flex-direction: column;
+      }
     }
     & > #datetime-period {
       display: inline-flex;
@@ -136,7 +138,7 @@ main > header {
       // justify-content: center;
       // flex-shrink: 1;
       // align-items: center;
-      border: 1px solid dimgray;
+      border: 1px solid gray;
       padding: 5px;
       padding-top: 3px;
       margin: 3px;
@@ -168,17 +170,13 @@ main > header {
     background-color: dodgerblue;
     margin-top: 3px;
   }
-  // & #more-search-filters-btn {
-  //   background-color: dodgerblue;
-  // }
   & #refresh-btn {
-    // height: min-content;
-    margin: 7px 0;
+    margin-top: 7px;
   }
   & > .actions-section {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: space-around;
     align-items: center;
     // margin-left: 3px;
     & label {

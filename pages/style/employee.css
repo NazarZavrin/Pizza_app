@@ -115,7 +115,6 @@ h1, h2, h3, h4, h5, h6 {
 .modal-window .warning {
   max-width: 100%;
   width: 200px;
-  font-style: normal;
   display: inline-block;
   font-size: 14px;
   color: red;
@@ -146,7 +145,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: limegreen;
   color: white;
   margin: 5px 0;
-  padding: 3px 5px;
+  padding: 5px;
   border-radius: 5px;
   text-align: center;
   font: inherit;
@@ -245,10 +244,20 @@ body {
   height: -moz-fit-content;
   height: fit-content;
   min-height: 100vh;
+  font: 20px "Calibri";
   /*
   font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)));
   ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
   а на экране шириной 1200 пикселей – размер 24 пикселя. */
+}
+
+button {
+  background-color: limegreen;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font: inherit;
+  text-align: center;
 }
 
 .wrapper > header {
@@ -256,12 +265,10 @@ body {
   height: 50px;
   position: fixed;
   display: grid;
-  grid-template-rows: min-content;
+  grid-template-rows: auto;
   grid-template-columns: auto auto 1fr auto;
-  justify-content: center;
   align-content: center;
   padding: 7px;
-  font: 20px "Calibri";
   color: white;
   background-color: blue;
 }
@@ -273,18 +280,10 @@ body {
 }
 .wrapper > header > .change-account-btn {
   background-color: dodgerblue;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  font: inherit;
 }
 .wrapper > header > .exit-btn {
   grid-column-start: 4;
   background-color: red;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  font: inherit;
 }
 
 main {
@@ -294,27 +293,28 @@ main {
   min-width: fit-content;
   display: flex;
   flex-direction: column;
-  font: 20px "Calibri";
 }
 
 main > header {
   padding: 5px;
-  border: 3px solid gray;
+  border: 1.5px solid dimgray;
+  box-shadow: 0 1px 3px 1px gray;
   border-top: 0;
   border-radius: 0 0 7px 7px;
 }
 main > header button {
-  background-color: limegreen;
-  color: white;
   width: -moz-fit-content;
   width: fit-content;
-  padding: 3px 5px;
-  border-radius: 5px;
+}
+main > header .warning {
+  max-width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  color: red;
   text-align: center;
-  font: inherit;
+  word-wrap: break-word;
 }
 main > header > .search-section {
-  flex-grow: 1;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -348,12 +348,15 @@ main > header > .search-section > div {
   justify-content: center;
   align-items: center;
 }
+main > header > .search-section > div:has(#search-btn) {
+  flex-direction: column;
+}
 main > header > .search-section > #datetime-period {
   display: inline-flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-around;
-  border: 1px solid dimgray;
+  border: 1px solid gray;
   padding: 5px;
   padding-top: 3px;
   margin: 3px;
@@ -379,12 +382,12 @@ main > header #search-btn {
   margin-top: 3px;
 }
 main > header #refresh-btn {
-  margin: 7px 0;
+  margin-top: 7px;
 }
 main > header > .actions-section {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
 }
 main > header > .actions-section label {

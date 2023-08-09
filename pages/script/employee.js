@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, isFloat, normalizeOrders, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { checkDayAndMonth, createElement, isFloat, isInt, normalizeOrders, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 const employeeName = document.getElementById("employee-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
@@ -9,6 +9,27 @@ const content = document.querySelector(".wrapper > main");
 const searchBtn = document.getElementById("search-btn");
 const refreshBtn = document.getElementById("refresh-btn");
 const ordersContainer = document.getElementById("orders");
+
+const searchInputsContainer = document.getElementsByClassName('search-inputs')[0];
+let searchInputs = {};
+for (const input of searchInputsContainer.querySelectorAll('input')) {
+    searchInputs[input.getAttribute('name')] = input;
+}
+const dateComponents = document.querySelectorAll('#datetime-period > .datetime-component');
+searchInputs.dateComponents = {
+    from: {
+        day: dateComponents[0].children[1],
+        month: dateComponents[0].children[2],
+        year: dateComponents[0].children[3]
+    },
+    to: {
+        day: dateComponents[1].children[1],
+        month: dateComponents[1].children[2],
+        year: dateComponents[1].children[3]
+    },
+}
+console.log(searchInputs);
+
 
 let orders = [];
 
@@ -33,9 +54,9 @@ refreshBtn.addEventListener('click', async event => {
                 throw new Error(result.message || "Server error.");
             } else {
                 content.style.display = "";
-                console.log(result.orders);
+                // console.log(result.orders);
                 orders = normalizeOrders(result.orders);
-                console.log(orders);
+                // console.log(orders);
                 renderOrders();
             }
         }
@@ -116,9 +137,9 @@ function showRegistrationWindow() {
         changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
     });
-    showModalWindow(document.body,
-        [currentEmployeeLabel, currentEmployeeLabel ? separator : null,
-            header, nameLabel, nameInput, logInBtn],
+    showModalWindow([currentEmployeeLabel,
+        currentEmployeeLabel ? separator : null,
+        header, nameLabel, nameInput, logInBtn],
         { className: 'registration' });
 }
 
@@ -127,8 +148,22 @@ function renderOrders() {
         ordersContainer.textContent = "Невидані замовлення відсутні";
         return;
     }
+    console.log(orders[0]);
+    // console.log(searchInputs.receipt_num.value);
+    let filteredOrders = orders.filter(order => order.receipt_num.includes(searchInputs.receipt_num.value))
+    .filter(order => order.orderItems.find(orderItem => orderItem.pizza.toLocaleLowerCase().includes(searchInputs.pizza_name.value.toLocaleLowerCase())))
+    .filter(order => order.customer_name.toLocaleLowerCase().includes(searchInputs.customer_name.value.toLocaleLowerCase()))
+    .filter(order => order.customer_phone_num.includes(searchInputs.customer_phone_num.value));
+    // setWarningAfterElement(, '');
+    // setWarningAfterElement(searchInputs.pizza_name, '');
+    // setWarningAfterElement(searchInputs.customer_name, '');
+    // setWarningAfterElement(searchInputs.customer_phone_num, '');
+    if (filteredOrders.length === 0) {
+        ordersContainer.textContent = "Немає невиданих замовлень, що задовільняють фільтри";
+        return;
+    }
     ordersContainer.innerHTML = '';
-    orders?.forEach(orderInfo => {
+    filteredOrders?.forEach(orderInfo => {
         if (!orderInfo.element) {
             orderInfo.element = createElement({ name: 'div', class: 'order' });
             const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + orderInfo.receipt_num });
@@ -237,7 +272,64 @@ ordersContainer.addEventListener('click', event => {
                 "Введіть коректне і достатнє значення заплаченої суми");
         }
     })
-    showModalWindow(document.body,
-        [header, сostElem, paidLabel, paidInput, changeLabel, issueBtn],
+    showModalWindow([header, сostElem,
+        paidLabel, paidInput, changeLabel, issueBtn],
         { className: 'issuance' });
+})
+searchBtn.addEventListener('click', event => {
+    // setWarningAfterElement(searchInputs.receipt_num, '');
+    // setWarningAfterElement(searchInputs.pizza_name, '');
+    // setWarningAfterElement(searchInputs.customer_name, '');
+    // setWarningAfterElement(searchInputs.customer_phone_num, '');
+    // setWarningAfterElement(searchBtn, '');
+    let everythingIsCorrect = true, message = '';
+    if (searchInputs.customer_phone_num.value.length > 0 && isInt(searchInputs.customer_phone_num.value).length > 0) {
+        message = 'Номер телефону покупця повинен складатися лише з цифр.';
+        everythingIsCorrect = false;
+    }
+    if (searchInputs.receipt_num.value.length > 0 && isInt(searchInputs.receipt_num.value).length > 0) {
+        message = 'Номер чеку повинен складатися лише з цифр.';
+        everythingIsCorrect = false;
+    }
+    for (const dateComponentKey in searchInputs.dateComponents) {
+        const dateComponent = searchInputs.dateComponents[dateComponentKey];
+        let dateComponentIsUsed = false;
+        for (const key in dateComponent) {
+            if (dateComponent[key].value.length > 0) {
+                dateComponentIsUsed = true;
+                break;
+            }
+        }
+        if (everythingIsCorrect && dateComponentIsUsed === true) {
+            for (const key in dateComponent) {
+                if (dateComponent[key].value.length == 0) {
+                    message = `Усі поля 
+                    ${dateComponentKey === 'to' ? 'кінця' : 'початку'} 
+                    діапазону дат повинні бути заповнені.`;
+                    everythingIsCorrect = false;
+                    break;
+                }
+            }
+            if (everythingIsCorrect && 
+                isInt(dateComponent.day.value).length > 0 ||
+                isInt(dateComponent.month.value).length > 0 ||
+                isInt(dateComponent.year.value).length > 0 ||
+                checkDayAndMonth(Number(dateComponent.day.value), Number(dateComponent.month.value)) === false) {
+                message = `Некоректний або неіснуючий 
+                ${dateComponentKey === 'to' ? 'кінець' : 'початок'} 
+                діапазону дат.`;
+                everythingIsCorrect = false;
+            }
+        }
+    }
+    
+
+    if (everythingIsCorrect === false) {
+        // console.log("fail");
+        setWarningAfterElement(searchBtn, message);
+        return;
+    }
+    setWarningAfterElement(searchBtn, '');
+    // console.log("ok");
+    renderOrders();
 })

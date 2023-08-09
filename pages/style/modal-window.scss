@@ -41,7 +41,6 @@
   & .warning {
     max-width: 100%;
     width: 200px;
-    font-style: normal;
     display: inline-block;
     font-size: 14px;
     color: red;
@@ -71,7 +70,7 @@
     background-color: limegreen;
     color: white;
     margin: 5px 0;
-    padding: 3px 5px;
+    padding: 5px;
     border-radius: 5px;
     text-align: center;
     font: inherit;
@@ -103,8 +102,6 @@
       font-size: 16px;
     }
     button {
-      &.log-in-btn {
-      }
       &.create-account-btn {
         background-color: dodgerblue;
         margin-top: 0;
