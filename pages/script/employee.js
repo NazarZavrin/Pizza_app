@@ -1,6 +1,6 @@
 "use strict";
 
-import { checkDayAndMonth, createElement, isFloat, isInt, normalizeOrders, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, normalizeOrders, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 const employeeName = document.getElementById("employee-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
@@ -15,17 +15,22 @@ let searchInputs = {};
 for (const input of searchInputsContainer.querySelectorAll('input')) {
     searchInputs[input.getAttribute('name')] = input;
 }
-const dateComponents = document.querySelectorAll('#datetime-period > .datetime-component');
-searchInputs.dateComponents = {
+const dateTimeComponents = document.querySelectorAll('#datetime-period > .datetime-component');
+console.log(dateTimeComponents);
+searchInputs.dateTimeComponents = {
     from: {
-        day: dateComponents[0].children[1],
-        month: dateComponents[0].children[2],
-        year: dateComponents[0].children[3]
+        day: dateTimeComponents[0].children[1],
+        month: dateTimeComponents[0].children[2],
+        year: dateTimeComponents[0].children[3],
+        hour: dateTimeComponents[0].children[4],
+        minute: dateTimeComponents[0].children[5]
     },
     to: {
-        day: dateComponents[1].children[1],
-        month: dateComponents[1].children[2],
-        year: dateComponents[1].children[3]
+        day: dateTimeComponents[1].children[1],
+        month: dateTimeComponents[1].children[2],
+        year: dateTimeComponents[1].children[3],
+        hour: dateTimeComponents[1].children[4],
+        minute: dateTimeComponents[1].children[5]
     },
 }
 console.log(searchInputs);
@@ -57,7 +62,7 @@ refreshBtn.addEventListener('click', async event => {
                 // console.log(result.orders);
                 orders = normalizeOrders(result.orders);
                 // console.log(orders);
-                renderOrders();
+                searchBtn.click();
             }
         }
     } catch (error) {
@@ -148,36 +153,62 @@ function renderOrders() {
         ordersContainer.textContent = "Невидані замовлення відсутні";
         return;
     }
-    console.log(orders[0]);
-    // console.log(searchInputs.receipt_num.value);
+    // console.log(orders[0]);
+    // console.log(orders.length);
     let filteredOrders = orders.filter(order => order.receipt_num.includes(searchInputs.receipt_num.value))
-    .filter(order => order.orderItems.find(orderItem => orderItem.pizza.toLocaleLowerCase().includes(searchInputs.pizza_name.value.toLocaleLowerCase())))
-    .filter(order => order.customer_name.toLocaleLowerCase().includes(searchInputs.customer_name.value.toLocaleLowerCase()))
-    .filter(order => order.customer_phone_num.includes(searchInputs.customer_phone_num.value));
-    // setWarningAfterElement(, '');
-    // setWarningAfterElement(searchInputs.pizza_name, '');
-    // setWarningAfterElement(searchInputs.customer_name, '');
-    // setWarningAfterElement(searchInputs.customer_phone_num, '');
+        .filter(order => order.orderItems.find(orderItem => orderItem.pizza.toLocaleLowerCase().includes(searchInputs.pizza_name.value.toLocaleLowerCase())))
+        .filter(order => order.customer_name.toLocaleLowerCase().includes(searchInputs.customer_name.value.toLocaleLowerCase()))
+        .filter(order => order.customer_phone_num.includes(searchInputs.customer_phone_num.value));
+    let fromTimestamp = searchInputs.dateTimeComponents.from.day.value === '' ?
+        0 : Date.parse(new Date(
+            Number(searchInputs.dateTimeComponents.from.year.value),
+            Number(searchInputs.dateTimeComponents.from.month.value) - 1,
+            Number(searchInputs.dateTimeComponents.from.day.value),
+            Number(searchInputs.dateTimeComponents.from.hour.value),
+            Number(searchInputs.dateTimeComponents.from.minute.value),
+            0, 0 // seconds and milliseconds
+        )) || 0;
+
+    let toTimestamp = searchInputs.dateTimeComponents.to.day.value === '' ?
+    Infinity : Date.parse(new Date(
+        Number(searchInputs.dateTimeComponents.to.year.value),
+        Number(searchInputs.dateTimeComponents.to.month.value) - 1,
+        Number(searchInputs.dateTimeComponents.to.day.value),
+        Number(searchInputs.dateTimeComponents.to.hour.value),
+        Number(searchInputs.dateTimeComponents.to.minute.value),
+        59, 999 // seconds and milliseconds
+    )) || Infinity;
+    // console.log(fromTimestamp, toTimestamp);
+    if (fromTimestamp > toTimestamp) {
+        setWarningAfterElement(searchBtn, 'У діапазоні дат початок більше ніж кінець.');
+    } else {
+        filteredOrders = filteredOrders.filter(order => {
+            let orderTimestamp = new Date(order.datetime).setSeconds(0, 0);
+            // new Date() adds timezone offset to ISOString
+            // console.log(order.datetime, orderTimestamp);
+            return orderTimestamp >= fromTimestamp && orderTimestamp <= toTimestamp;
+        })
+    }
     if (filteredOrders.length === 0) {
         ordersContainer.textContent = "Немає невиданих замовлень, що задовільняють фільтри";
         return;
     }
     ordersContainer.innerHTML = '';
-    filteredOrders?.forEach(orderInfo => {
-        if (!orderInfo.element) {
-            orderInfo.element = createElement({ name: 'div', class: 'order' });
-            const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + orderInfo.receipt_num });
-            orderInfo.element.append(receiptNum);
-            const customerName = createElement({ class: 'customer_name', content: 'Покупець: ' + orderInfo.customer_name });
-            orderInfo.element.append(customerName);
-            const customerPhoneNum = createElement({ class: 'customer_phone_num', content: 'Номер телефону покупця: ' + orderInfo.customer_phone_num });
-            orderInfo.element.append(customerPhoneNum);
-            const datetime = createElement({ class: 'datetime', content: 'Дата замовлення: ' + new Date(orderInfo.datetime).toLocaleString() });
-            orderInfo.element.append(datetime);
-            const cost = createElement({ class: 'cost', content: 'Вартість: ' + orderInfo.cost + ' грн.' });
-            orderInfo.element.append(cost);
+    filteredOrders?.forEach(order => {
+        if (!order.element) {
+            order.element = createElement({ name: 'div', class: 'order' });
+            const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + order.receipt_num });
+            order.element.append(receiptNum);
+            const customerName = createElement({ class: 'customer_name', content: 'Покупець: ' + order.customer_name });
+            order.element.append(customerName);
+            const customerPhoneNum = createElement({ class: 'customer_phone_num', content: 'Номер телефону покупця: ' + order.customer_phone_num });
+            order.element.append(customerPhoneNum);
+            const datetime = createElement({ class: 'datetime', content: 'Дата замовлення: ' + new Date(order.datetime).toLocaleString() });
+            order.element.append(datetime);
+            const cost = createElement({ class: 'cost', content: 'Вартість: ' + order.cost + ' грн.' });
+            order.element.append(cost);
             const orderItems = createElement({ class: 'order-items' });
-            orderInfo.orderItems.forEach(orderItem => {
+            order.orderItems.forEach(orderItem => {
                 let text = `Піца: ${orderItem.pizza}; `;
                 if (orderItem.extra_toppings.length > 0) {
                     text += `добавки: ${orderItem.extra_toppings.join(", ")}.`;
@@ -186,11 +217,11 @@ function renderOrders() {
                 }
                 orderItems.insertAdjacentHTML("beforeend", `<div class="order-item">${text[0] + text.slice(1).toLocaleLowerCase()}</div>`);
             })
-            orderInfo.element.append(orderItems);
+            order.element.append(orderItems);
             const issuanceBtn = createElement({ name: 'button', class: 'issuance-btn', content: 'Видати замовлення' });
-            orderInfo.element.append(issuanceBtn);
+            order.element.append(issuanceBtn);
         }
-        ordersContainer.append(orderInfo.element);
+        ordersContainer.append(order.element);
     })
 }
 ordersContainer.addEventListener('click', event => {
@@ -277,11 +308,6 @@ ordersContainer.addEventListener('click', event => {
         { className: 'issuance' });
 })
 searchBtn.addEventListener('click', event => {
-    // setWarningAfterElement(searchInputs.receipt_num, '');
-    // setWarningAfterElement(searchInputs.pizza_name, '');
-    // setWarningAfterElement(searchInputs.customer_name, '');
-    // setWarningAfterElement(searchInputs.customer_phone_num, '');
-    // setWarningAfterElement(searchBtn, '');
     let everythingIsCorrect = true, message = '';
     if (searchInputs.customer_phone_num.value.length > 0 && isInt(searchInputs.customer_phone_num.value).length > 0) {
         message = 'Номер телефону покупця повинен складатися лише з цифр.';
@@ -291,45 +317,64 @@ searchBtn.addEventListener('click', event => {
         message = 'Номер чеку повинен складатися лише з цифр.';
         everythingIsCorrect = false;
     }
-    for (const dateComponentKey in searchInputs.dateComponents) {
-        const dateComponent = searchInputs.dateComponents[dateComponentKey];
-        let dateComponentIsUsed = false;
-        for (const key in dateComponent) {
-            if (dateComponent[key].value.length > 0) {
-                dateComponentIsUsed = true;
+    for (const dateTimeComponentKey in searchInputs.dateTimeComponents) {
+        const dateTimeComponent = searchInputs.dateTimeComponents[dateTimeComponentKey];
+        let dateTimeComponentIsUsed = false;
+        for (const key in dateTimeComponent) {
+            dateTimeComponent[key].style.borderColor = '';
+            if (!dateTimeComponentIsUsed && dateTimeComponent[key].value.length > 0) {
+                // console.log(dateTimeComponentKey, dateTimeComponent[key]);
+                dateTimeComponentIsUsed = true;
+            }
+        }
+        // console.log(dateTimeComponentIsUsed);
+        if (!everythingIsCorrect || dateTimeComponentIsUsed === false) {
+            continue;
+        }
+        for (const key in dateTimeComponent) {
+            if (key === 'hour' || key === 'minute') {
+                continue;
+            }
+            if (dateTimeComponent[key].value.length == 0) {
+                if (key === 'year') {
+                    dateTimeComponent[key].value = new Date().getFullYear();
+                    continue;
+                }
+                message = `День та місяць 
+                    ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
+                    діапазону дат повинні бути заповнені.`;
+                dateTimeComponent[key].style.borderColor = 'red';
+                everythingIsCorrect = false;
                 break;
             }
         }
-        if (everythingIsCorrect && dateComponentIsUsed === true) {
-            for (const key in dateComponent) {
-                if (dateComponent[key].value.length == 0) {
-                    message = `Усі поля 
-                    ${dateComponentKey === 'to' ? 'кінця' : 'початку'} 
-                    діапазону дат повинні бути заповнені.`;
-                    everythingIsCorrect = false;
-                    break;
-                }
-            }
-            if (everythingIsCorrect && 
-                isInt(dateComponent.day.value).length > 0 ||
-                isInt(dateComponent.month.value).length > 0 ||
-                isInt(dateComponent.year.value).length > 0 ||
-                checkDayAndMonth(Number(dateComponent.day.value), Number(dateComponent.month.value)) === false) {
-                message = `Некоректний або неіснуючий 
-                ${dateComponentKey === 'to' ? 'кінець' : 'початок'} 
+        if (!everythingIsCorrect) {
+            continue;
+        }
+        if (isInt(dateTimeComponent.day).length > 0 ||
+            isInt(dateTimeComponent.month).length > 0 ||
+            isInt(dateTimeComponent.year).length > 0 ||
+            !dayAndMonthAreCorrect(dateTimeComponent.day, dateTimeComponent.month)) {
+            message = `Некоректна або неіснуюча дата 
+                ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
                 діапазону дат.`;
-                everythingIsCorrect = false;
-            }
+            everythingIsCorrect = false;
+            continue;
+        }
+        if (isInt(dateTimeComponent.hour).length > 0 ||
+            isInt(dateTimeComponent.minute).length > 0 ||
+            !hourAndMinuteAreCorrect(dateTimeComponent.hour, dateTimeComponent.minute)) {
+            message = `Некоректний або неіснуючий час 
+            ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
+            діапазону дат.`;
+            everythingIsCorrect = false;
+            // continue;
         }
     }
-    
-
     if (everythingIsCorrect === false) {
-        // console.log("fail");
         setWarningAfterElement(searchBtn, message);
         return;
     }
     setWarningAfterElement(searchBtn, '');
-    // console.log("ok");
     renderOrders();
 })

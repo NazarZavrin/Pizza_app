@@ -171,7 +171,7 @@ main > header {
     margin-top: 3px;
   }
   & #refresh-btn {
-    margin-top: 7px;
+    // margin-top: 7px;
   }
   & > .actions-section {
     display: flex;
@@ -181,7 +181,7 @@ main > header {
     // margin-left: 3px;
     & label {
       text-align: center;
-      margin-top: 3px;
+      // margin-top: 3px;
       font: inherit;
       font-size: 16px;
     }
@@ -189,6 +189,7 @@ main > header {
       border: 1px solid dimgray;
       font: inherit;
       font-size: 16px;
+      margin-bottom: 3px;
     }
     & > .actions-section__sorting {
       display: flex;
@@ -204,12 +205,14 @@ main > #orders {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   & > .order {
     width: 100%;
     min-width: fit-content;
     // display: flex;
     // flex-direction: column;
     padding: 10px;
+    text-align: left;
     display: grid;
     grid-template-rows: repeat(6, auto);
     grid-template-columns: auto min-content;

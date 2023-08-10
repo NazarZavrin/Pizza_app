@@ -87,6 +87,9 @@ h1, h2, h3, h4, h5, h6 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 88%;
   background-color: white;
   box-shadow: 0 0 15px gray;
   border-radius: 5px;
@@ -297,11 +300,11 @@ main {
 }
 
 section.pizza {
-  width: -moz-fit-content;
-  width: fit-content;
+  width: -moz-max-content;
+  width: max-content;
   display: grid;
   grid-auto-rows: auto;
-  grid-template-columns: repeat(2, 100px);
+  grid-template-columns: repeat(2, min-content);
   grid-template-areas: "image image" "name name" "ingredients ingredients" "weight price" "is_vegetarian is_vegetarian" "add_to_basket_btn add_to_basket_btn";
   background-color: white;
   box-shadow: 0 0 3px 1px gray;
@@ -338,8 +341,8 @@ section.pizza > .pizza__is-vegetarian {
 }
 section.pizza > .image {
   grid-area: image;
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   display: flex;
   background-color: #eee;
   margin: 0;

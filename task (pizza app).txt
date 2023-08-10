@@ -19,3 +19,5 @@ list of pizzas with extra toppings, cost),
 > Sorting by receipt num (equals to sorting by date), customer name. Ability to change sorting type (asc/desc).
 > Report for the period with the number of receipts, 
 total cost, average cost of the receipt
+-------
+/clients route: employee can change data of the customer, admin can delete a customer

@@ -95,9 +95,20 @@ export function emailIsCorrect(inputElement, elementForWarning = null) {
     setWarningAfterElement(elementForWarning, warningText);
     return warningText.length > 0 ? false : true;
 }
-export function isInt(text) {
+export function isInt(source) {
+    let text = source;
+    // console.log(source?.tagName === "INPUT", source?.value);
+    if (source?.tagName === "INPUT" && typeof source?.value === 'string') {
+        // console.log("+");
+        text = source.value;
+        source.style.borderColor = '';
+    }
     for (const symbol of text) {
         if (Number.isNaN(Number(symbol))) {
+            // console.log(source);
+            if (source?.style) {
+                source.style.borderColor = 'red';
+            }
             if (symbol === "." || symbol === ",") {
                 return "Decimal point can't be present in integer.";
             }
@@ -121,26 +132,66 @@ export function isFloat(text) {
     }
     return "";
 }
-export function checkDayAndMonth(day, month) {
-    let dayAndMonthAreCorrect = true;
+export function dayAndMonthAreCorrect(daySource, monthSource) {
+    let day = daySource, month = monthSource;
+    if (daySource?.tagName === "INPUT" && typeof daySource?.value === 'string') {
+        day = Number(daySource.value);
+        daySource.style.borderColor = '';
+    }
+    if (monthSource?.tagName === "INPUT" && typeof monthSource?.value === 'string') {
+        month = Number(monthSource.value);
+        monthSource.style.borderColor = '';
+    }
+    let dayIsCorrect = true, monthIsCorrect = true;
     if (day > 31 || day <= 0) {
-        dayAndMonthAreCorrect = false;
+        dayIsCorrect = false;
     }
     if (month > 12 || month <= 0) {
-        dayAndMonthAreCorrect = false;
+        monthIsCorrect = false;
     }
     // в квітні (4), червні (6), вересні (9) та листопаді (11) 30 днів
     // в січні (1), березні (3), травні (5), липні (7),
     //  серпні (8), жовтні (10) та грудні (12) 31 день
     // в лютому (2) максимум 29 днів (у високосному році)
     if (month == 2 && day > 29) {
-        dayAndMonthAreCorrect = false;
+        dayIsCorrect = false;
     } else if (day == 31) {
         if (month == 4 || month == 6 || month == 9 || month == 11) {
-            dayAndMonthAreCorrect = false;
+            dayIsCorrect = false;
         }
     }
-    return dayAndMonthAreCorrect;
+    if (!dayIsCorrect && daySource?.style) {
+        daySource.style.borderColor = 'red';
+    }
+    if (!monthIsCorrect && monthSource?.style) {
+        monthSource.style.borderColor = 'red';
+    }
+    return dayIsCorrect && monthIsCorrect;
+}
+export function hourAndMinuteAreCorrect(hourSource, minuteSource) {
+    let hour = hourSource, minute = minuteSource;
+    if (hourSource?.tagName === "INPUT" && typeof hourSource?.value === 'string') {
+        hour = Number(hourSource.value);
+        hourSource.style.borderColor = '';
+    }
+    if (minuteSource?.tagName === "INPUT" && typeof minuteSource?.value === 'string') {
+        minute = Number(minuteSource.value);
+        minuteSource.style.borderColor = '';
+    }
+    let hourIsCorrect = true, minuteIsCorrect = true;
+    if (hour > 23 || hour < 0) {
+        hourIsCorrect = false;
+    }
+    if (minute > 59 || minute < 0) {
+        minuteIsCorrect = false;
+    }
+    if (!hourIsCorrect && hourSource?.style) {
+        hourSource.style.borderColor = 'red';
+    }
+    if (!minuteIsCorrect && minuteSource?.style) {
+        minuteSource.style.borderColor = 'red';
+    }
+    return hourIsCorrect && minuteIsCorrect;
 }
 
 export function normalizeOrders(orders) {

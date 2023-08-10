@@ -87,6 +87,9 @@ h1, h2, h3, h4, h5, h6 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 88%;
   background-color: white;
   box-shadow: 0 0 15px gray;
   border-radius: 5px;
@@ -381,9 +384,6 @@ main > header #search-btn {
   background-color: dodgerblue;
   margin-top: 3px;
 }
-main > header #refresh-btn {
-  margin-top: 7px;
-}
 main > header > .actions-section {
   display: flex;
   flex-direction: row;
@@ -392,7 +392,6 @@ main > header > .actions-section {
 }
 main > header > .actions-section label {
   text-align: center;
-  margin-top: 3px;
   font: inherit;
   font-size: 16px;
 }
@@ -400,6 +399,7 @@ main > header > .actions-section select {
   border: 1px solid dimgray;
   font: inherit;
   font-size: 16px;
+  margin-bottom: 3px;
 }
 main > header > .actions-section > .actions-section__sorting {
   display: flex;
@@ -415,12 +415,14 @@ main > #orders {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 main > #orders > .order {
   width: 100%;
   min-width: -moz-fit-content;
   min-width: fit-content;
   padding: 10px;
+  text-align: left;
   display: grid;
   grid-template-rows: repeat(6, auto);
   grid-template-columns: auto min-content;
