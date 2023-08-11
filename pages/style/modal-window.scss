@@ -42,7 +42,7 @@
   }
   & .warning {
     max-width: 100%;
-    width: 200px;
+    width: 150px;
     display: inline-block;
     font-size: 14px;
     color: red;
@@ -76,6 +76,11 @@
     border-radius: 5px;
     text-align: center;
     font: inherit;
+  }
+  form.password-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   &.confirm {
     header {

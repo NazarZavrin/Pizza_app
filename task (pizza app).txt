@@ -20,4 +20,9 @@ list of pizzas with extra toppings, cost),
 > Report for the period with the number of receipts, 
 total cost, average cost of the receipt
 -------
+For registration of employee password is required,
+because if another employee logs in and issues some orders,
+the employee whose name was used will be forced to pay for issued orders
+
 /clients route: employee can change data of the customer, admin can delete a customer
+admin can add employee and change his data

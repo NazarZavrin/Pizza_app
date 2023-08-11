@@ -51,6 +51,7 @@ CREATE TABLE employee (
   phone_num BIGINT NOT NULL,
   email VARCHAR(50) NOT NULL
 );
+ALTER TABLE employee ADD password VARCHAR(20);
 
 CREATE TABLE pizza_order (
   num BIGSERIAL PRIMARY KEY NOT NULL,

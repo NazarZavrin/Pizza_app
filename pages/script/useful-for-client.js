@@ -29,7 +29,8 @@ export function showModalWindow(elementsArray, { style = "", className = "", han
         }
     });
 }
-export function createElement({ name: elemName = "div", style = "", content = "", class: className = "" } = {}) {
+export function createElement({ name: elemName = "div", style = "", content = "", class: className = "", attributes = [] } = {}) {
+    // attributes - array of objects with keys "name" and "value"
     let element = document.createElement(elemName);
     if (elemName == "input") {
         element.value = content;
@@ -38,7 +39,20 @@ export function createElement({ name: elemName = "div", style = "", content = ""
     }
     if (className) element.className = className;
     if (style) element.style.cssText = style;
+    attributes.forEach(attribute => element.setAttribute(...attribute.split(/\s*:\s*/)));
     return element;
+}
+export function showPassword(event) {
+    const checkbox = event.target.closest('input[type="checkbox"]');
+    const passwordInput = this.querySelector('input:not([type="checkbox"])');
+    if (!checkbox || !passwordInput) {
+        return;
+    }
+    if (passwordInput.type === "password" && checkbox.checked === true) {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
 }
 export function setWarningAfterElement(element, warningText) {
     if (element.nextElementSibling?.matches('.warning')) {
@@ -90,6 +104,19 @@ export function emailIsCorrect(inputElement, elementForWarning = null) {
         warningText = "Email не повинен бути більше, ніж 50 символів.";
     } else if (!inputElement.value.match(emailRegex)) {
         warningText = "Некоректний email.";
+    }
+    elementForWarning = elementForWarning || inputElement;
+    setWarningAfterElement(elementForWarning, warningText);
+    return warningText.length > 0 ? false : true;
+}
+export function passwordIsCorrect(inputElement, elementForWarning = null, event = {}) {
+    let warningText = "";
+    if (inputElement.value.length > 20) {
+        warningText = "Пароль не повинен бути більше ніж 20 символів.";
+    } else if (inputElement.value.length < 4) {
+        warningText = "Пароль не повинен бути менше ніж 4 символи.";
+    } else if (inputElement.value.search(/\s/) >= 0) {
+        warningText = "Пароль не повинен містити пробільні символи.";
     }
     elementForWarning = elementForWarning || inputElement;
     setWarningAfterElement(elementForWarning, warningText);

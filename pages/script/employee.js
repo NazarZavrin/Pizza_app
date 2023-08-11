@@ -1,12 +1,15 @@
 "use strict";
 
-import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, normalizeOrders, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, normalizeOrders, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
 
 const employeeName = document.getElementById("employee-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
 const exitBtn = document.getElementsByClassName("exit-btn")[0];
 const content = document.querySelector(".wrapper > main");
 const searchBtn = document.getElementById("search-btn");
+const sortingSection = document.getElementsByClassName("actions-section__sorting")[0];
+const sortBySelect = document.getElementById("sort-by");
+const sortOrderSelect = document.getElementById("sort-order");
 const refreshBtn = document.getElementById("refresh-btn");
 const ordersContainer = document.getElementById("orders");
 
@@ -16,7 +19,6 @@ for (const input of searchInputsContainer.querySelectorAll('input')) {
     searchInputs[input.getAttribute('name')] = input;
 }
 const dateTimeComponents = document.querySelectorAll('#datetime-period > .datetime-component');
-console.log(dateTimeComponents);
 searchInputs.dateTimeComponents = {
     from: {
         day: dateTimeComponents[0].children[1],
@@ -33,8 +35,6 @@ searchInputs.dateTimeComponents = {
         minute: dateTimeComponents[1].children[5]
     },
 }
-console.log(searchInputs);
-
 
 let orders = [];
 
@@ -81,14 +81,14 @@ if (localStorage.getItem("employeeName") === null) {
     changeAccountBtn.textContent = "Змінити акаунт";
     refreshBtn.click();
 }
+changeAccountBtn.addEventListener("click", event => {
+    showRegistrationWindow();
+});
 exitBtn.addEventListener("click", event => {
     localStorage.removeItem("employeeName");
     location.href = location.href.slice(0, location.href.indexOf("/orders"));
 });
 
-changeAccountBtn.addEventListener("click", event => {
-    showRegistrationWindow();
-})
 function showRegistrationWindow() {
     let currentEmployeeLabel = null;
     if (localStorage.getItem("employeeName") !== null) {
@@ -102,17 +102,31 @@ function showRegistrationWindow() {
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
     nameInput.setAttribute("autocomplete", "off");
+    const passwordLabel = createElement({ name: "label", content: "Введіть пароль:" },);
+    const passwordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
+    const passwordBlock = createElement({ name: "form", class: "password-block" });
+    passwordBlock.innerHTML = `<label class="show-password">
+    <input type="checkbox">Показати пароль</label>`;
+    passwordBlock.prepend(passwordInput);
+    passwordBlock.addEventListener("change", showPassword);
     const logInBtn = createElement({ name: 'button', content: "Увійти", class: "log-in-btn" });
     logInBtn.addEventListener("click", async event => {
         // for login you can enter just name
         setWarningAfterElement(nameInput, '');
+        setWarningAfterElement(passwordInput, '');
         setWarningAfterElement(logInBtn, '');
-        if (userNameIsCorrect(nameInput) === false) {
+        let everythingIsCorrect = userNameIsCorrect(nameInput);
+        if (passwordInput.value.length === 0) {
+            setWarningAfterElement(passwordInput, 'Введіть пароль');
+            everythingIsCorrect = false;
+        }
+        if (!everythingIsCorrect) {
             return;
         }
         try {
             let requestBody = {
                 name: nameInput.value,
+                password: passwordInput.value
             };
             let response = await fetch(location.href + "/log-in", {
                 method: "PROPFIND",
@@ -124,6 +138,9 @@ function showRegistrationWindow() {
                 if (!result.success) {
                     if (result.message.includes("not exist")) {
                         setWarningAfterElement(logInBtn, `Співробітника з такими даними не існує`);
+                        return;
+                    } else if (result.message.includes("Wrong password")) {
+                        setWarningAfterElement(logInBtn, `Неправильний пароль`);
                         return;
                     }
                     throw new Error(result.message || "Server error.");
@@ -144,7 +161,9 @@ function showRegistrationWindow() {
     });
     showModalWindow([currentEmployeeLabel,
         currentEmployeeLabel ? separator : null,
-        header, nameLabel, nameInput, logInBtn],
+        header, nameLabel, nameInput,
+        passwordLabel, passwordBlock,
+        logInBtn],
         { className: 'registration' });
 }
 
@@ -170,14 +189,14 @@ function renderOrders() {
         )) || 0;
 
     let toTimestamp = searchInputs.dateTimeComponents.to.day.value === '' ?
-    Infinity : Date.parse(new Date(
-        Number(searchInputs.dateTimeComponents.to.year.value),
-        Number(searchInputs.dateTimeComponents.to.month.value) - 1,
-        Number(searchInputs.dateTimeComponents.to.day.value),
-        Number(searchInputs.dateTimeComponents.to.hour.value),
-        Number(searchInputs.dateTimeComponents.to.minute.value),
-        59, 999 // seconds and milliseconds
-    )) || Infinity;
+        Infinity : Date.parse(new Date(
+            Number(searchInputs.dateTimeComponents.to.year.value),
+            Number(searchInputs.dateTimeComponents.to.month.value) - 1,
+            Number(searchInputs.dateTimeComponents.to.day.value),
+            Number(searchInputs.dateTimeComponents.to.hour.value),
+            Number(searchInputs.dateTimeComponents.to.minute.value),
+            59, 999 // seconds and milliseconds
+        )) || Infinity;
     // console.log(fromTimestamp, toTimestamp);
     if (fromTimestamp > toTimestamp) {
         setWarningAfterElement(searchBtn, 'У діапазоні дат початок більше ніж кінець.');
@@ -193,6 +212,21 @@ function renderOrders() {
         ordersContainer.textContent = "Немає невиданих замовлень, що задовільняють фільтри";
         return;
     }
+    let sortOrder = sortOrderSelect.value === 'asc' ? 1 : -1;
+    filteredOrders.sort((first, second) => {
+        first = first[sortBySelect.value];
+        second = second[sortBySelect.value];
+        if (!first) {
+            console.error(`Field "${sortBySelect.value}" does not exist in order object.`);
+            return 0;
+        }
+        if (sortBySelect.value === 'receipt_num') {
+            return sortOrder * (first - second);
+        }
+        return sortOrder * first.localeCompare(second);
+    })
+
+
     ordersContainer.innerHTML = '';
     filteredOrders?.forEach(order => {
         if (!order.element) {
@@ -224,6 +258,83 @@ function renderOrders() {
         ordersContainer.append(order.element);
     })
 }
+searchBtn.addEventListener('click', event => {
+    let everythingIsCorrect = true, message = '';
+    if (searchInputs.customer_phone_num.value.length > 0 && isInt(searchInputs.customer_phone_num.value).length > 0) {
+        message = 'Номер телефону покупця повинен складатися лише з цифр.';
+        everythingIsCorrect = false;
+    }
+    if (searchInputs.receipt_num.value.length > 0 && isInt(searchInputs.receipt_num.value).length > 0) {
+        message = 'Номер чеку повинен складатися лише з цифр.';
+        everythingIsCorrect = false;
+    }
+    for (const dateTimeComponentKey in searchInputs.dateTimeComponents) {
+        const dateTimeComponent = searchInputs.dateTimeComponents[dateTimeComponentKey];
+        let dateTimeComponentIsUsed = false;
+        for (const key in dateTimeComponent) {
+            dateTimeComponent[key].style.borderColor = '';
+            if (!dateTimeComponentIsUsed && dateTimeComponent[key].value.length > 0) {
+                // console.log(dateTimeComponentKey, dateTimeComponent[key]);
+                dateTimeComponentIsUsed = true;
+            }
+        }
+        // console.log(dateTimeComponentIsUsed);
+        if (!everythingIsCorrect || dateTimeComponentIsUsed === false) {
+            continue;
+        }
+        for (const key in dateTimeComponent) {
+            if (key === 'hour' || key === 'minute') {
+                continue;
+            }
+            if (dateTimeComponent[key].value.length == 0) {
+                if (key === 'year') {
+                    dateTimeComponent[key].value = new Date().getFullYear();
+                    continue;
+                }
+                message = `День та місяць 
+                    ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
+                    діапазону дат повинні бути заповнені.`;
+                dateTimeComponent[key].style.borderColor = 'red';
+                everythingIsCorrect = false;
+                break;
+            }
+        }
+        if (!everythingIsCorrect) {
+            continue;
+        }
+        if (isInt(dateTimeComponent.day).length > 0 ||
+            isInt(dateTimeComponent.month).length > 0 ||
+            isInt(dateTimeComponent.year).length > 0 ||
+            !dayAndMonthAreCorrect(dateTimeComponent.day, dateTimeComponent.month)) {
+            message = `Некоректна або неіснуюча дата 
+                ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
+                діапазону дат.`;
+            everythingIsCorrect = false;
+            continue;
+        }
+        if (isInt(dateTimeComponent.hour).length > 0 ||
+            isInt(dateTimeComponent.minute).length > 0 ||
+            !hourAndMinuteAreCorrect(dateTimeComponent.hour, dateTimeComponent.minute)) {
+            message = `Некоректний або неіснуючий час 
+            ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
+            діапазону дат.`;
+            everythingIsCorrect = false;
+            // continue;
+        }
+    }
+    if (everythingIsCorrect === false) {
+        setWarningAfterElement(searchBtn, message);
+        return;
+    }
+    setWarningAfterElement(searchBtn, '');
+    renderOrders();
+})
+sortingSection.addEventListener('change', event => {
+    let closestSelect = event.target.closest('select');
+    if (closestSelect === sortBySelect || closestSelect === sortOrderSelect) {
+        searchBtn.click();
+    }
+})
 ordersContainer.addEventListener('click', event => {
     const issuanceBtn = event.target.closest('.issuance-btn')
     if (!issuanceBtn) {
@@ -306,75 +417,4 @@ ordersContainer.addEventListener('click', event => {
     showModalWindow([header, сostElem,
         paidLabel, paidInput, changeLabel, issueBtn],
         { className: 'issuance' });
-})
-searchBtn.addEventListener('click', event => {
-    let everythingIsCorrect = true, message = '';
-    if (searchInputs.customer_phone_num.value.length > 0 && isInt(searchInputs.customer_phone_num.value).length > 0) {
-        message = 'Номер телефону покупця повинен складатися лише з цифр.';
-        everythingIsCorrect = false;
-    }
-    if (searchInputs.receipt_num.value.length > 0 && isInt(searchInputs.receipt_num.value).length > 0) {
-        message = 'Номер чеку повинен складатися лише з цифр.';
-        everythingIsCorrect = false;
-    }
-    for (const dateTimeComponentKey in searchInputs.dateTimeComponents) {
-        const dateTimeComponent = searchInputs.dateTimeComponents[dateTimeComponentKey];
-        let dateTimeComponentIsUsed = false;
-        for (const key in dateTimeComponent) {
-            dateTimeComponent[key].style.borderColor = '';
-            if (!dateTimeComponentIsUsed && dateTimeComponent[key].value.length > 0) {
-                // console.log(dateTimeComponentKey, dateTimeComponent[key]);
-                dateTimeComponentIsUsed = true;
-            }
-        }
-        // console.log(dateTimeComponentIsUsed);
-        if (!everythingIsCorrect || dateTimeComponentIsUsed === false) {
-            continue;
-        }
-        for (const key in dateTimeComponent) {
-            if (key === 'hour' || key === 'minute') {
-                continue;
-            }
-            if (dateTimeComponent[key].value.length == 0) {
-                if (key === 'year') {
-                    dateTimeComponent[key].value = new Date().getFullYear();
-                    continue;
-                }
-                message = `День та місяць 
-                    ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
-                    діапазону дат повинні бути заповнені.`;
-                dateTimeComponent[key].style.borderColor = 'red';
-                everythingIsCorrect = false;
-                break;
-            }
-        }
-        if (!everythingIsCorrect) {
-            continue;
-        }
-        if (isInt(dateTimeComponent.day).length > 0 ||
-            isInt(dateTimeComponent.month).length > 0 ||
-            isInt(dateTimeComponent.year).length > 0 ||
-            !dayAndMonthAreCorrect(dateTimeComponent.day, dateTimeComponent.month)) {
-            message = `Некоректна або неіснуюча дата 
-                ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
-                діапазону дат.`;
-            everythingIsCorrect = false;
-            continue;
-        }
-        if (isInt(dateTimeComponent.hour).length > 0 ||
-            isInt(dateTimeComponent.minute).length > 0 ||
-            !hourAndMinuteAreCorrect(dateTimeComponent.hour, dateTimeComponent.minute)) {
-            message = `Некоректний або неіснуючий час 
-            ${dateTimeComponentKey === 'to' ? 'кінця' : 'початку'} 
-            діапазону дат.`;
-            everythingIsCorrect = false;
-            // continue;
-        }
-    }
-    if (everythingIsCorrect === false) {
-        setWarningAfterElement(searchBtn, message);
-        return;
-    }
-    setWarningAfterElement(searchBtn, '');
-    renderOrders();
 })

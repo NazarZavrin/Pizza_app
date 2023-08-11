@@ -3,6 +3,7 @@
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 console.info(`After successfully created order add to modal window a button "Log out from user account"`);
+console.info(`Admin can delete orders on /orders page`);
 // console.info(``);
 
 const customerName = document.getElementById("customer-name");

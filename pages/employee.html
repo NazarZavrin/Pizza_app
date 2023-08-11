@@ -52,18 +52,17 @@
                     <section class="actions-section__sorting">
                         <label for="sort-by">Сортувати за:</label>
                         <select id="sort-by">
-                            <option>Номером замовлення</option>
-                            <option>Ім'ям покупця</option>
+                            <option value="receipt_num">Номером замовлення</option>
+                            <option value="customer_name">Ім'ям покупця</option>
                         </select>
-                        <label for="sort-by">Порядок сортування:</label>
-                        <select id="sort-by">
-                            <option>Від більшого до меншого</option>
-                            <option>Від меншого до більшого</option>
+                        <label for="sort-order">Порядок сортування:</label>
+                        <select id="sort-order">
+                            <option value="desc">Від більшого до меншого</option>
+                            <option value="asc">Від меншого до більшого</option>
                         </select>
                     </section>
                     <button id="refresh-btn">Оновити дані</button>
                 </section>
-
             </header>
             <section id="orders"></section>
         </main>
