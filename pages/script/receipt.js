@@ -19,6 +19,7 @@ if (localStorage.getItem("employeeName")) {
                     }
                 } else {
                     let order = normalizeOrders(result.orders)?.pop();
+                    console.log(order);
                     const labels = {
                         cost: "Вартість",
                         paid: "Сплачено",
@@ -43,7 +44,9 @@ if (localStorage.getItem("employeeName")) {
                             `<div class="order-item">${text[0] + text.slice(1).toLocaleLowerCase()}</div>
                     <div class="order-item-cost">${orderItem.cost} грн.</div>`);
                     })
-                    document.querySelector(".change").textContent += (Number(order.paid) - order.cost).toFixed(2);
+                    const change = Number(order.paid) - Number(order.cost);
+                    document.querySelector(".change").textContent += change.toFixed(change % 1 === 0 ? 0 : 2);
+                    // ↑ if change is integer number (change % 1 === 0) then we will not output fraction digits, otherwise we will output 2 fraction digits
                     for (const item of ["cost", "paid", "change"]) {
                         let elem = document.getElementsByClassName(item)[0];
                         elem.textContent += " грн.";

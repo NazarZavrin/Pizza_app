@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza orders</title>
+    <link rel="stylesheet" href="./style/orders.css" />
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <span id="employee-name"></span>
+            <!-- <button class="change-account-btn">Увійти</button> -->
+            <a href="/employee">
+                <button class="to-employee-page-btn">На сторінку співробітника</button>
+            </a>
+        </header>
+        <main>
+            <header>
+                <section class="search-section">
+                    <header>Фільтри для пошуку:</header>
+                    <div class="search-inputs">
+                        <input name="receipt_num" type="tel" placeholder="Номер чеку">
+                        <input name="pizza_name" type="text" placeholder="Назва піци">
+                        <input name="customer_name" type="text" placeholder="Ім'я покупця">
+                        <input name="customer_phone_num" type="tel" placeholder="Номер телефону покупця">
+                    </div>
+                    <section id="datetime-period">
+                        <span>Замовлення за період</span>
+                        <div class="datetime-component">
+                            <label>від:</label>
+                            <input name="day" type="tel" placeholder="21">
+                            .<input name="month" type="tel" placeholder="03">
+                            .<input name="year" type="tel" placeholder="2014">
+                            ,<input name="hour" type="tel" placeholder="9">
+                            :<input name="minute" type="tel" placeholder="25">
+                        </div>
+                        <div class="datetime-component">
+                            <label>до:</label>
+                            <input name="day" type="tel" placeholder="27">
+                            .<input name="month" type="tel" placeholder="06">
+                            .<input name="year" type="tel" placeholder="2014">
+                            ,<input name="hour" type="tel" placeholder="14">
+                            :<input name="minute" type="tel" placeholder="05">
+                        </div>
+                    </section>
+                    <div>
+                        <button id="search-btn">Шукати</button>
+                    </div>
+                </section>
+                <section class="actions-section">
+                    <section class="actions-section__sorting">
+                        <label for="sort-by">Сортувати за:</label>
+                        <select id="sort-by">
+                            <option value="receipt_num">Номером замовлення</option>
+                            <option value="customer_name">Ім'ям покупця</option>
+                        </select>
+                        <label for="sort-order">Порядок сортування:</label>
+                        <select id="sort-order">
+                            <option value="desc">Від більшого до меншого</option>
+                            <option value="asc">Від меншого до більшого</option>
+                        </select>
+                    </section>
+                    <button id="refresh-btn">Оновити дані</button>
+                </section>
+            </header>
+            <section id="orders"></section>
+        </main>
+    </div>
+    <script src="./script/orders.js" type="module"></script>
+    <script src="./script/polyfills.js"></script>
+</body>
+</html>

@@ -32,15 +32,12 @@ button {
   display: grid;
   grid-template-rows: auto;
   grid-template-columns: auto auto 1fr auto;
-  align-content: center;
+  align-items: center;
   padding: 7px;
   font: 20px "Calibri";
   color: white;
   background-color: blue;
   & > #customer-name {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     margin-right: 5px;
   }
   & > .change-account-btn {

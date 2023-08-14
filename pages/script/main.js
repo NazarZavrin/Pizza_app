@@ -2,8 +2,6 @@
 
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
-console.info(`After successfully created order add to modal window a button "Log out from user account"`);
-console.info(`Admin can delete orders on /orders page`);
 // console.info(``);
 
 const customerName = document.getElementById("customer-name");
@@ -276,10 +274,13 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
         showCreateAccountWindow(whatToDoAfterRegistration);
     });
     const separator = createElement({ class: "separator" });
-    const enterAsEmployeeBtn = createElement({ name: 'button', content: "Увійти як працівник", class: "enter-as-employee-btn" });
-    enterAsEmployeeBtn.addEventListener("click", event => {
-        location.href += "orders";
-    });
+    const enterAsEmployeeBtn = createElement({ name: 'a'});
+    enterAsEmployeeBtn.href = "/employee";
+    enterAsEmployeeBtn.innerHTML = `<button class="enter-as-employee-btn">Увійти як працівник</button>`;
+    enterAsEmployeeBtn.addEventListener('click', event => {
+        localStorage.removeItem("customerName");
+        localStorage.removeItem("customerPhoneNum");
+    })
     showModalWindow([currentCustomerLabel,
         currentCustomerLabel ? separator.cloneNode(true) : null,
         header, nameLabel, nameInput,
@@ -347,7 +348,7 @@ function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
         }
     });
     showModalWindow([header, nameLabel, nameInput,
-            phoneNumberLabel, phoneNumberInput,
-            emailLabel, emailInput, createAccountBtn],
+        phoneNumberLabel, phoneNumberInput,
+        emailLabel, emailInput, createAccountBtn],
         { className: 'create-account' });
 }
