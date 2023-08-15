@@ -107,12 +107,12 @@ function showCorrectButtons() {
     for (const btn of optionButtons) {
         if (btn.className.includes("employees") || btn.className.includes("report")) {
             if (localStorage.getItem("employeeName") === 'Admin') {
-                btn.style.display = "block";
+                btn.style.display = "";
                 if (btn.closest("a")) {
                     btn.closest("a").style.display = "";
                 }
             } else {
-                btn.style.display = "";
+                btn.style.display = "none";
                 if (btn.closest("a")) {
                     btn.closest("a").style.display = "none";
                 }

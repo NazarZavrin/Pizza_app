@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers</title>
+    <link rel="stylesheet" href="./style/customers.css" />
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <span id="employee-name"></span>
+            <a href="/employee">
+                <button class="to-employee-page-btn">На сторінку співробітника</button>
+            </a>
+        </header>
+        <main>
+            <header>
+                <section class="search-section">
+                    <header>Пошук за іменем покупця:</header>
+                    <div>
+                        <input name="customer_name" type="text" placeholder="Ім'я покупця">
+                        <button id="search-btn">Шукати</button>
+                    </div>
+                </section>
+                <button id="refresh-btn">Оновити дані</button>
+            </header>
+            <section id="customers"></section>
+        </main>
+    </div>
+    <script src="./script/customers.js" type="module"></script>
+    <script src="./script/polyfills.js"></script>
+</body>
+
+</html>

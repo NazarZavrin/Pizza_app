@@ -35,8 +35,6 @@ searchInputs.dateTimeComponents = {
     },
 }
 
-console.log("content.style.display?");
-
 let orders = [];
 let ordersToDisplay = [];
 
@@ -45,10 +43,9 @@ refreshBtn.addEventListener('click', async event => {
         toEmployeePageBtn.click();
         return;
     }
-    // content.style.display = "";
     try {
         let requestBody = {
-            name: localStorage.getItem("employeeName"),
+            employeeName: localStorage.getItem("employeeName"),
         };
         let response = await fetch(location.href + "/get-orders", {
             method: "PROPFIND",
@@ -60,9 +57,8 @@ refreshBtn.addEventListener('click', async event => {
             if (!result.success) {
                 throw new Error(result.message || "Server error.");
             } else {
-                // content.style.display = "";
                 // console.log(result.orders);
-                orders = normalizeOrders(result.orders);
+                orders = normalizeOrders(result.orders).map(createOrderElement);
                 // console.log(orders);
                 searchBtn.click();
             }
@@ -75,7 +71,6 @@ refreshBtn.addEventListener('click', async event => {
 
 if (localStorage.getItem("employeeName") === null) {
     toEmployeePageBtn.click();
-    // content.style.display = "none";
 } else {
     employeeName.textContent = localStorage.getItem("employeeName");
     employeeName.style.display = "";
@@ -84,7 +79,7 @@ if (localStorage.getItem("employeeName") === null) {
 
 function renderOrders() {
     if (!orders || orders.length === 0) {
-        ordersContainer.textContent = "Невидані замовлення відсутні";
+        ordersContainer.textContent = "Невидані замовлення відсутні.";
         return;
     }
     // console.log(orders[0]);
@@ -123,7 +118,7 @@ function renderOrders() {
         })
     }
     if (ordersToDisplay.length === 0) {
-        ordersContainer.textContent = "Немає невиданих замовлень, що задовільняють фільтри";
+        ordersContainer.textContent = "Немає невиданих замовлень, що задовільняють фільтри.";
         return;
     }
     let sortOrder = sortOrderSelect.value === 'asc' ? 1 : -1;
@@ -141,39 +136,40 @@ function renderOrders() {
     })
     ordersContainer.innerHTML = '';
     ordersToDisplay?.forEach(order => {
-        if (!order.element) {
-            order.element = createElement({ name: 'div', class: 'order' });
-            const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + order.receipt_num });
-            order.element.append(receiptNum);
-            const customerName = createElement({ class: 'customer_name', content: 'Покупець: ' + order.customer_name });
-            order.element.append(customerName);
-            const customerPhoneNum = createElement({ class: 'customer_phone_num', content: 'Номер телефону покупця: ' + order.customer_phone_num });
-            order.element.append(customerPhoneNum);
-            const datetime = createElement({ class: 'datetime', content: 'Дата замовлення: ' + new Date(order.datetime).toLocaleString() });
-            order.element.append(datetime);
-            const cost = createElement({ class: 'cost', content: 'Вартість: ' + order.cost + ' грн.' });
-            order.element.append(cost);
-            const orderItems = createElement({ class: 'order-items' });
-            order.orderItems.forEach(orderItem => {
-                let text = `Піца: ${orderItem.pizza}; `;
-                if (orderItem.extra_toppings.length > 0) {
-                    text += `добавки: ${orderItem.extra_toppings.join(", ")}.`;
-                } else {
-                    text += `добавки відсутні.`;
-                }
-                orderItems.insertAdjacentHTML("beforeend", `<div class="order-item">${text[0] + text.slice(1).toLocaleLowerCase()}</div>`);
-            })
-            order.element.append(orderItems);
-            const issuanceBtn = createElement({ name: 'button', class: 'issuance-btn', content: 'Видати замовлення' });
-            order.element.append(issuanceBtn);
-            const deleteOrderBtn = createElement({ name: 'button', class: 'delete-order-btn', content: 'Видалити замовлення' });
-            if (localStorage.getItem("employeeName") === 'Admin') {
-                deleteOrderBtn.style.display = 'block';
-            }
-            order.element.append(deleteOrderBtn);
-        }
-        ordersContainer.append(order.element);
+        ordersContainer.append(order.element || createOrderElement(order).element);
     })
+}
+function createOrderElement(order) {
+    order.element = createElement({ name: 'div', class: 'order' });
+    const receiptNum = createElement({ class: 'receipt_num', content: 'Замовлення №' + order.receipt_num });
+    order.element.append(receiptNum);
+    const customerName = createElement({ class: 'customer_name', content: 'Покупець: ' + order.customer_name });
+    order.element.append(customerName);
+    const customerPhoneNum = createElement({ class: 'customer_phone_num', content: 'Номер телефону покупця: ' + order.customer_phone_num });
+    order.element.append(customerPhoneNum);
+    const datetime = createElement({ class: 'datetime', content: 'Дата замовлення: ' + new Date(order.datetime).toLocaleString() });
+    order.element.append(datetime);
+    const cost = createElement({ class: 'cost', content: 'Вартість: ' + order.cost + ' грн.' });
+    order.element.append(cost);
+    const orderItems = createElement({ class: 'order-items' });
+    order.orderItems.forEach(orderItem => {
+        let text = `Піца: ${orderItem.pizza}; `;
+        if (orderItem.extra_toppings.length > 0) {
+            text += `добавки: ${orderItem.extra_toppings.join(", ")}.`;
+        } else {
+            text += `добавки відсутні.`;
+        }
+        orderItems.insertAdjacentHTML("beforeend", `<div class="order-item">${text[0] + text.slice(1).toLocaleLowerCase()}</div>`);
+    })
+    order.element.append(orderItems);
+    const issuanceBtn = createElement({ name: 'button', class: 'issuance-btn', content: 'Видати замовлення' });
+    order.element.append(issuanceBtn);
+    const deleteOrderBtn = createElement({ name: 'button', class: 'delete-order-btn', content: 'Видалити замовлення' });
+    if (localStorage.getItem("employeeName") === 'Admin') {
+        deleteOrderBtn.style.display = 'block';
+    }
+    order.element.append(deleteOrderBtn);
+    return order;
 }
 searchBtn.addEventListener('click', event => {
     let everythingIsCorrect = true, message = '';

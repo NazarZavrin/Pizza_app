@@ -1,8 +1,9 @@
 import express from 'express';
 import pool from './connect-to-PostgreSQL.js';
 import path from 'path';
-import { ordersRouter } from './routers/orders-router.js';
 import { employeeRouter } from './routers/employee-router.js';
+import { ordersRouter } from './routers/orders-router.js';
+import { customersRouter } from './routers/customers-router.js';
 
 const app = express();
 
@@ -12,8 +13,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(path.resolve(), 'pages'));
 
 app.use(express.static(path.join(path.resolve(), 'pages')));
-app.use("/orders", ordersRouter);
 app.use("/employee", employeeRouter);
+app.use("/orders", ordersRouter);
+app.use("/customers", customersRouter);
 
 const imgNames = {
     "Сирна": "cheese-pizza.jpg"

@@ -12,6 +12,7 @@ body {
   min-width: fit-content;
   height: fit-content;
   min-height: 100vh;
+  font: 20px "Calibri";
   /*
   font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)));
   ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
@@ -27,14 +28,13 @@ button {
 }
 .wrapper > header {
   width: 100%;
-  height: 50px;
-  position: fixed;
+  min-height: 50px;
+  // position: fixed;
   display: grid;
   grid-template-rows: auto;
   grid-template-columns: auto auto 1fr auto;
   align-items: center;
   padding: 7px;
-  font: 20px "Calibri";
   color: white;
   background-color: blue;
   & > #employee-name {
@@ -53,19 +53,16 @@ button {
 main {
   width: 100%;
   padding: 7px;
-  margin-top: 50px; // the height of header
+  // margin-top: 50px; // the height of header
   min-width: fit-content;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  font: 20px "Calibri";
 }
 main > a {
   display: inline-block;
   margin: 3px;
-}
-main > a {
   & > .to-orders-page-btn {
     background-color: limegreen;
   }
@@ -77,11 +74,5 @@ main > a {
   }
   & > .report-btn {
     background-color: slateblue;
-  }
-  &:has(.to-employees-page-btn) {
-    display: none;
-  }
-  &:has(.report-btn) {
-    display: none;
   }
 }

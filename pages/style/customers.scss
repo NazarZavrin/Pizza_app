@@ -1,0 +1,190 @@
+@import "./null-style.scss";
+@import "./modal-window.scss";
+html,
+body {
+  display: flex;
+  min-width: fit-content;
+  height: fit-content;
+  min-height: 100vh;
+}
+button {
+  background-color: limegreen;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font: inherit;
+  text-align: center;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: fit-content;
+  height: fit-content;
+  min-height: 100vh;
+  font: 20px "Calibri";
+  /*
+  font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)));
+  ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
+  а на экране шириной 1200 пикселей – размер 24 пикселя. */
+}
+.wrapper > header {
+  width: 100%;
+  min-height: 50px;
+  // position: fixed;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 7px;
+  color: white;
+  background-color: blue;
+  & > #employee-name {
+    margin-right: 5px;
+  }
+  & > .to-employee-page-btn {
+    background-color: dodgerblue;
+  }
+}
+main {
+  width: 100%;
+  // margin-top: 50px; // the height of header
+  min-width: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+main > header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px;
+  border: 1.5px solid dimgray;
+  box-shadow: 0 1px 3px 1px gray;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+  & > .search-section {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    // border-bottom: 3px dashed gray;
+    & > header {
+      text-align: center;
+      margin-bottom: 3px;
+    }
+    & > div:has(#search-btn) {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      & > input[name="customer_name"] {
+        font: inherit;
+        // display: inline-block;
+        width: 170px;
+        // flex: 1 0 150px;
+        // flex-grow: 1;
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 0 3px;
+        margin: 5px 10px 5px 0;
+      }
+    }
+  }
+  & #search-btn {
+    background-color: dodgerblue;
+    // margin-top: 3px;
+  }
+  & #refresh-btn {
+    margin: 5px;
+  }
+}
+main > #customers {
+  width: 100%;
+  min-width: fit-content;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  & > #create-customer {
+    width: 100%;
+    font-size: 28px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  & > .customer {
+    width: 100%;
+    min-width: fit-content;
+    // display: flex;
+    // flex-direction: column;
+    // padding: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+    box-shadow: 0 0 3px 1px gray;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+    & > section.info {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      & > div {
+        display: flex;
+        align-items: center;
+        margin: 5px;
+        // border: 1px solid #000;
+        // &.receipt_num {
+        //   grid-area: receipt_num;
+        // }
+        // &.customer_name {
+        //   grid-area: customer_name;
+        // }
+        // &.customer_phone_num {
+        //   grid-area: customer_phone_num;
+        // }
+        // &.datetime {
+        //   grid-area: datetime;
+        // }
+        // &.cost {
+        //   grid-area: cost;
+        // }
+        // &.order-items {
+        //   grid-area: order_items;
+        //   flex-direction: column;
+        //   align-items: start;
+        // }
+      }
+    }
+    & > section.buttons {
+      display: flex;
+      flex-direction: column;
+      & > button {
+        white-space: nowrap;
+        margin: 3px;
+      }
+      & > .edit-info-btn {
+        background-color: dodgerblue;
+        // grid-area: issuance_btn;
+        
+        // margin-left: 5px;
+        // padding: 3px;
+        // justify-self: end;
+        // align-self: center;
+      }
+      & > .delete-btn {
+        // grid-area: delete_order_btn;
+        display: none;
+        background-color: red;
+        // margin: 5px 0 0 5px;
+        // padding: 3px;
+        // justify-self: end;
+        // align-self: center;
+      }
+    }
+    
+  }
+}
