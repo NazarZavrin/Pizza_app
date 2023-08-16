@@ -151,36 +151,6 @@ app.propfind("/log-in", (req, res, next) => {
     }
 })
 
-app.post("/create-account", (req, res, next) => {
-    express.json({
-        limit: req.get('content-length'),
-    })(req, res, next);
-}, async (req, res) => {
-    try {
-        if (!req.body.name || !req.body.phoneNum || !req.body.email) {
-            throw new Error("Account creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
-        }
-        await pool.query(`
-        SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-        BEGIN;`);
-        let result = await pool.query(`
-        SELECT * FROM customer WHERE name = $1 AND phone_num = $2
-        `, [req.body.name, req.body.phoneNum]);
-        if (result.rowCount > 0) {
-            throw new Error("Customer with such name and phone number already exists.");
-        } else {
-            result = await pool.query(`
-            INSERT INTO customer VALUES ($1, $2, $3) RETURNING *;
-            `, [req.body.name, req.body.phoneNum, req.body.email]);
-            await pool.query(`COMMIT;`);
-        }
-        res.json({ success: true, message: "Customer was added.", customerData: result.rows[0] });
-    } catch (error) {
-        console.log(error.message);
-        res.json({ success: false, message: error.message });
-    }
-})
-
 app.listen(PORT, () => {
     console.log(`Server has been started on port ${PORT}...`);
 })

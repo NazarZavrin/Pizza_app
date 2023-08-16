@@ -67,7 +67,6 @@ main > header {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    // border-bottom: 3px dashed gray;
     & > header {
       text-align: center;
       margin-bottom: 3px;
@@ -78,10 +77,7 @@ main > header {
       align-items: center;
       & > input[name="customer_name"] {
         font: inherit;
-        // display: inline-block;
         width: 170px;
-        // flex: 1 0 150px;
-        // flex-grow: 1;
         border: 1px solid gray;
         border-radius: 5px;
         padding: 0 3px;
@@ -114,9 +110,6 @@ main > #customers {
   & > .customer {
     width: 100%;
     min-width: fit-content;
-    // display: flex;
-    // flex-direction: column;
-    // padding: 10px;
     padding: 5px;
     display: flex;
     flex-direction: row;
@@ -132,59 +125,30 @@ main > #customers {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
+      align-content: center;
       & > div {
         display: flex;
         align-items: center;
         margin: 5px;
-        // border: 1px solid #000;
-        // &.receipt_num {
-        //   grid-area: receipt_num;
-        // }
-        // &.customer_name {
-        //   grid-area: customer_name;
-        // }
-        // &.customer_phone_num {
-        //   grid-area: customer_phone_num;
-        // }
-        // &.datetime {
-        //   grid-area: datetime;
-        // }
-        // &.cost {
-        //   grid-area: cost;
-        // }
-        // &.order-items {
-        //   grid-area: order_items;
-        //   flex-direction: column;
-        //   align-items: start;
-        // }
       }
     }
     & > section.buttons {
       display: flex;
       flex-direction: column;
-      & > button {
-        white-space: nowrap;
-        margin: 3px;
-      }
       & > .edit-info-btn {
         background-color: dodgerblue;
-        // grid-area: issuance_btn;
-        
-        // margin-left: 5px;
-        // padding: 3px;
-        // justify-self: end;
-        // align-self: center;
+        margin: 3px;
       }
       & > .delete-btn {
-        // grid-area: delete_order_btn;
         display: none;
         background-color: red;
-        // margin: 5px 0 0 5px;
-        // padding: 3px;
-        // justify-self: end;
-        // align-self: center;
+        margin: 3px;
       }
     }
     
   }
+}
+.deleted {
+  transform: scale(0);
+  transition: all 0.75s ease-out;
 }

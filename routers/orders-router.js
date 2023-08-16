@@ -138,10 +138,10 @@ ordersRouter.delete("/delete", (req, res, next) => {
     })(req, res, next);
 }, async (req, res) => {
     try {
-        if (!req.body.receiptNum || !req.body.employeeName || req.body.employeeIsAdmin === undefined) {
+        if (!req.body.receiptNum || !req.body.employeeName) {
             throw new Error("Order deletion: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
-        if (req.body.employeeName !== 'Admin' || !req.body.employeeIsAdmin) {
+        if (req.body.employeeName !== 'Admin') {
             throw new Error("Employee is not admin");
         }
         await pool.query(`DELETE FROM pizza_order WHERE receipt_num = $1;`,

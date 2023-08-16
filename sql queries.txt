@@ -67,6 +67,8 @@ CREATE TABLE pizza_order (
 ALTER TABLE pizza_order ADD paid DECIMAL NULL DEFAULT NULL;
 ALTER TABLE pizza_order ADD issuance_datetime TIMESTAMP NULL DEFAULT NULL;
 SELECT constraint_name FROM INFORMATION_SCHEMA.table_constraints WHERE table_name = 'pizza_order';
+ALTER TABLE pizza_order DROP CONSTRAINT pizza_order_customer_name_customer_phone_num_fkey;
+ALTER TABLE pizza_order ADD CONSTRAINT pizza_order_customer_name_customer_phone_num_fkey FOREIGN KEY (customer_name, customer_phone_num) REFERENCES customer(name, phone_num) ON UPDATE CASCADE ON DELETE CASCADE;
 
 CREATE TABLE order_extra_topping (
   order_num BIGINT NOT NULL REFERENCES pizza_order(num),

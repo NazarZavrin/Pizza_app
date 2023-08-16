@@ -370,6 +370,7 @@ main > #customers > .customer > section.info {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  align-content: center;
 }
 main > #customers > .customer > section.info > div {
   display: flex;
@@ -380,14 +381,17 @@ main > #customers > .customer > section.buttons {
   display: flex;
   flex-direction: column;
 }
-main > #customers > .customer > section.buttons > button {
-  white-space: nowrap;
-  margin: 3px;
-}
 main > #customers > .customer > section.buttons > .edit-info-btn {
   background-color: dodgerblue;
+  margin: 3px;
 }
 main > #customers > .customer > section.buttons > .delete-btn {
   display: none;
   background-color: red;
+  margin: 3px;
+}
+
+.deleted {
+  transform: scale(0);
+  transition: all 0.75s ease-out;
 }

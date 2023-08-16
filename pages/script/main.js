@@ -1,5 +1,6 @@
 "use strict";
 
+import Customer from "./class_Customer.js";
 import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
 
 // console.info(``);
@@ -184,7 +185,7 @@ viewBasketBtn.addEventListener('click', event => {
             }
         } else {
             event.target.closest(".modal-window").closeWindow();
-            showRegistrationWindow("show basket after registration");
+            showRegistrationWindow(() => viewBasketBtn.click());
         }
     });
     showModalWindow([currentCustomerLabel, orders,
@@ -192,7 +193,7 @@ viewBasketBtn.addEventListener('click', event => {
         { className: 'basket' });
 })
 
-function showRegistrationWindow(whatToDoAfterRegistration = "") {
+function showRegistrationWindow(callback = function(){}) {
     let currentCustomerLabel = null;
     if (localStorage.getItem("customerName") !== null) {
         currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
@@ -263,15 +264,18 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
         }
         changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
-        if (whatToDoAfterRegistration.includes("show basket")) {
-            viewBasketBtn.click();
-        }
+        callback();
     });
     const createAccountLabel = createElement({ name: "span", content: "Немає аккаунту? Створіть його:", class: "create-account-label" });
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", event => {
         event.target.closest(".modal-window").closeWindow();
-        showCreateAccountWindow(whatToDoAfterRegistration);
+        new Customer("customer", (createdCustomerName) => {
+            customerName.textContent = createdCustomerName;
+            customerName.style.display = "";
+            changeAccountBtn.textContent = "Змінити акаунт";
+            callback();
+        });
     });
     const separator = createElement({ class: "separator" });
     const enterAsEmployeeBtn = createElement({ name: 'a'});
@@ -287,68 +291,4 @@ function showRegistrationWindow(whatToDoAfterRegistration = "") {
         phoneNumberLabel, phoneNumberInput, logInBtn,
         createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
         { className: 'registration' });
-}
-function showCreateAccountWindow(whatToDoAfterAccountCreation = "") {
-    const header = createElement({ name: "header", content: "Реєстрація" });
-    const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
-    const nameInput = createElement({ name: "input" });
-    nameInput.setAttribute("autocomplete", "off");
-    const phoneNumberLabel = createElement({ name: "header", content: "Введіть ваш номер телефону:" });
-    const phoneNumberInput = createElement({ name: "input" });
-    phoneNumberInput.setAttribute("autocomplete", "off");
-    phoneNumberInput.setAttribute("type", "tel");
-    const emailLabel = createElement({ name: "header", content: "Введіть ваш email:" });
-    const emailInput = createElement({ name: "input" });
-    emailInput.setAttribute("autocomplete", "off");
-    const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
-    createAccountBtn.addEventListener("click", async event => {
-        setWarningAfterElement(createAccountBtn, '');
-        let everythingIsCorrect = true;
-        everythingIsCorrect = userNameIsCorrect(nameInput) && everythingIsCorrect;
-        everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
-        everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
-        if (everythingIsCorrect === false) {
-            return;
-        }
-        try {
-            let requestBody = {
-                name: nameInput.value,
-                phoneNum: phoneNumberInput.value,
-                email: emailInput.value
-            };
-            let response = await fetch(location.href + "create-account", {
-                method: "POST",
-                body: JSON.stringify(requestBody),
-                headers: { "Content-Type": "application/json" }
-            })
-            if (response.ok) {
-                let result = await response.json();
-                if (!result.success) {
-                    if (result.message.includes("already exists")) {
-                        setWarningAfterElement(createAccountBtn, 'Покупець з таким іменем та номером телефону вже існує');
-                        return;
-                    }
-                    throw new Error(result.message || "Server error.");
-                } else {
-                    customerName.textContent = result.customerData.name;
-                    customerName.style.display = "";
-                    localStorage.setItem("customerName", result.customerData.name);
-                    localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
-                }
-            }
-        } catch (error) {
-            console.error(error.message);
-            alert("Error");
-            return;
-        }
-        changeAccountBtn.textContent = "Змінити акаунт";
-        event.target.closest(".modal-window").closeWindow();
-        if (whatToDoAfterAccountCreation.includes("show basket")) {
-            viewBasketBtn.click();
-        }
-    });
-    showModalWindow([header, nameLabel, nameInput,
-        phoneNumberLabel, phoneNumberInput,
-        emailLabel, emailInput, createAccountBtn],
-        { className: 'create-account' });
 }
