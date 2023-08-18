@@ -1,3 +1,5 @@
+import "./polyfills.js"
+
 export function showModalWindow(elementsArray, { style = "", className = "", handlers: eventHandlers = [], showCross = true, bodyElement = document.body } = {}) {
     let modalWindow = createElement({ name: "div", class: "modal-window " + className, style: style });
     elementsArray.forEach(element => {
@@ -221,12 +223,12 @@ export function hourAndMinuteAreCorrect(hourSource, minuteSource) {
     return hourIsCorrect && minuteIsCorrect;
 }
 
-export function normalizeOrders(orders) {
-    /* In "orders" parameter each pizza and
-    it's extra toppings are in sepatate order.
+export function orderItemsToOrders(orderItems) {
+    /* In "orderItems" parameter each pizza and
+    it's extra toppings are in sepatate orderItem.
     We will put all the pizzas 
     that belong to one order in one order: */
-    return orders?.reduce((prev, item) => {
+    return orderItems?.reduce((prev, item) => {
         if (prev.length === 0 || item.receipt_num !== prev.at(-1).receipt_num) {
             item.orderItems = [
                 { pizza: item.pizza, extra_toppings: item.extra_toppings, cost: Number(item.cost) }

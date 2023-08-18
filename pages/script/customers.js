@@ -1,7 +1,7 @@
 "use strict";
 
-import { createElement } from "./useful-for-client.js";
 import Customer from "./class_Customer.js";
+import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
 const toEmployeePageBtn = document.getElementsByClassName("to-employee-page-btn")[0];

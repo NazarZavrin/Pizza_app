@@ -1,6 +1,7 @@
 "use strict";
 
 import { createElement, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
+import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
 const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
@@ -8,8 +9,8 @@ const exitBtn = document.getElementsByClassName("exit-btn")[0];
 const content = document.getElementsByTagName("main")[0];
 const optionButtons = content.querySelectorAll('a > button');
 
+content.style.display = "none";
 if (localStorage.getItem("employeeName") === null) {
-    content.style.display = "none";
     employeeName.style.display = "none";
     showRegistrationWindow();
 } else {
@@ -17,6 +18,7 @@ if (localStorage.getItem("employeeName") === null) {
     employeeName.style.display = "";
     changeAccountBtn.textContent = "Змінити акаунт";
     showCorrectButtons();
+    content.style.display = "";
 }
 changeAccountBtn.addEventListener("click", event => {
     showRegistrationWindow();

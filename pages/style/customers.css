@@ -314,12 +314,12 @@ main > header > .search-section > header {
   text-align: center;
   margin-bottom: 3px;
 }
-main > header > .search-section > div:has(#search-btn) {
+main > header > .search-section > .search-section__div {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
 }
-main > header > .search-section > div:has(#search-btn) > input[name=customer_name] {
+main > header > .search-section > .search-section__div > input[name=customer_name] {
   font: inherit;
   width: 170px;
   border: 1px solid gray;

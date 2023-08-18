@@ -51,10 +51,8 @@ export default class Customer {
                         }
                         throw new Error(result.message || "Server error.");
                     } else {
-                        localStorage.setItem("customerName", result.customerData.name);
-                        localStorage.setItem("customerPhoneNum", result.customerData.phone_num);
                         event.target.closest(".modal-window").closeWindow();
-                        callback(result.customerData.name);
+                        callback(result.customerData.name, result.customerData.phone_num);
                     }
                 }
             } catch (error) {

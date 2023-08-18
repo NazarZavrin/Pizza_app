@@ -43,7 +43,7 @@ button {
   & > .change-account-btn {
     // background-color: dodgerblue;
   }
-  & > a:has(.exit-btn) {
+  & > a[href="/"] {
     grid-column-start: 4;
   }
   .exit-btn {

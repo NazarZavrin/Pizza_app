@@ -1,6 +1,6 @@
 "use strict";
 
-import { normalizeOrders } from "./useful-for-client.js";
+import { orderItemsToOrders } from "./useful-for-client.js";
 
 if (localStorage.getItem("employeeName")) {
     (async () => {
@@ -18,7 +18,7 @@ if (localStorage.getItem("employeeName")) {
                         throw new Error(result.message || "Server error.");
                     }
                 } else {
-                    let order = normalizeOrders(result.orders)?.pop();
+                    let order = orderItemsToOrders(result.orderItems)?.pop();
                     console.log(order);
                     const labels = {
                         cost: "Вартість",

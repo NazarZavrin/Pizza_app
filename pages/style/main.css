@@ -354,3 +354,8 @@ section.pizza > button[type=button] {
   grid-area: add_to_basket_btn;
   margin: 5px;
 }
+
+.deleted {
+  transform: scale(0);
+  transition: all 0.75s ease-out;
+}

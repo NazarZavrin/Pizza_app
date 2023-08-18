@@ -1,8 +1,8 @@
 "use strict";
 
 import Customer from "./class_Customer.js";
-import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
-
+import { createElement, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import "./polyfills.js";
 // console.info(``);
 
 const customerName = document.getElementById("customer-name");
@@ -105,29 +105,29 @@ viewBasketBtn.addEventListener('click', event => {
         currentCustomerLabel.style.fontSize = "16px";
         currentCustomerLabel.style.textAlign = "center";
     }
-    let orders = createElement({ name: 'section' });
-    basket.forEach(order => {
-        const pizzaNameElem = createElement({ class: 'pizza-name', content: `Піца: ${order.pizzaInfo.name}` });
+    let orderItems = createElement({ name: 'section' });
+    basket.forEach(orderItem => {
+        const pizzaNameElem = createElement({ class: 'pizza-name', content: `Піца: ${orderItem.pizzaInfo.name}` });
         const extraToppingsElem = createElement({ class: 'extra-toppings' });
-        extraToppingsElem.textContent = order.extraToppings?.join(", ") || "Добавки відсутні";
+        extraToppingsElem.textContent = orderItem.extraToppings?.join(", ") || "Добавки відсутні";
         if (!extraToppingsElem.textContent.includes("відсутні")) {
             extraToppingsElem.textContent = 'Добавки: ' + extraToppingsElem.textContent.toLocaleLowerCase();
         }
-        const orderElement = createElement();
-        orderElement.append(pizzaNameElem);
-        orderElement.append(extraToppingsElem);
-        orderElement.insertAdjacentHTML('beforeend', `<div class='pizza-cost'>${order.cost}</div>
+        const orderItemElement = createElement();
+        orderItemElement.append(pizzaNameElem);
+        orderItemElement.append(extraToppingsElem);
+        orderItemElement.insertAdjacentHTML('beforeend', `<div class='pizza-cost'>${orderItem.cost}</div>
         <button type="button" class="del-from-basket-btn">Видалити з кошику</button>`);
-        orders.append(orderElement);
+        orderItems.append(orderItemElement);
     });
     const totalCostElem = createElement({ class: 'total-cost' });
     const orderBtn = createElement({ name: 'button', content: "Замовити", class: "order-btn" });
     function updateTotalCost() {
         totalCostElem.textContent = `Сума замовлення: ${basket.reduce(
-            (totalCost, order) => totalCost + Number.parseFloat(order.cost.match(/= (\d+)/)[1]), 0)
+            (totalCost, orderItem) => totalCost + Number.parseFloat(orderItem.cost.match(/= (\d+)/)[1]), 0)
             } грн.`;
         if (totalCostElem.textContent.includes(": 0 грн")) {
-            orders.textContent = "Кошик пустий";
+            orderItems.textContent = "Кошик пустий";
             totalCostElem.textContent = "";
             orderBtn.style.display = "none";
         } else {
@@ -135,16 +135,20 @@ viewBasketBtn.addEventListener('click', event => {
         }
     }
     updateTotalCost();
-    orders.addEventListener('click', event => {
+    orderItems.addEventListener('click', event => {
         // deletion from the basket
         const delFromBasketBtn = event.target.closest('.del-from-basket-btn');
         if (!delFromBasketBtn) {
             return;
         }
-        let orderIndex = [...orders.querySelectorAll('.del-from-basket-btn')].findIndex(btn => btn === delFromBasketBtn);
-        basket = basket.filter((item, index) => index !== orderIndex);
-        delFromBasketBtn.closest('section > div')?.remove();
-        updateTotalCost();
+        let orderItemIndex = [...orderItems.querySelectorAll('.del-from-basket-btn')].findIndex(btn => btn === delFromBasketBtn);
+        basket = basket.filter((item, index) => index !== orderItemIndex);
+        const orderItemElement = delFromBasketBtn.closest('section > div');
+        orderItemElement.classList.add("deleted");
+        orderItemElement.addEventListener("transitionend", event => {
+            orderItemElement.remove();
+            updateTotalCost();
+        });
     })
     orderBtn.addEventListener("click", async event => {
         if (localStorage.getItem("customerName") !== null) {
@@ -157,13 +161,13 @@ viewBasketBtn.addEventListener('click', event => {
                     customerName: localStorage.getItem("customerName"),
                     customerPhoneNum: localStorage.getItem("customerPhoneNum")
                 };
-                requestBody.orders = basket.map(order => {
+                requestBody.orderItems = basket.map(orderItem => {
                     return {
-                        pizzaName: order.pizzaInfo.name,
-                        extraToppings: order.extraToppings
+                        pizzaName: orderItem.pizzaInfo.name,
+                        extraToppings: orderItem.extraToppings
                     }
                 });
-                let response = await fetch(location.href + "create-order", {
+                let response = await fetch(location.origin + "/orders/create-order", {
                     method: "POST",
                     body: JSON.stringify(requestBody),
                     headers: { "Content-Type": "application/json" }
@@ -175,6 +179,7 @@ viewBasketBtn.addEventListener('click', event => {
                         throw new Error(result.message || "Server error.");
                     } else {
                         setWarningAfterElement(orderBtn, `Замовлення оформлено. Номер чеку: ${result.receiptNum || -1}.`);
+                        element.nextElementSibling.style.width = "fit-content";
                         return;
                     }
                 }
@@ -188,12 +193,12 @@ viewBasketBtn.addEventListener('click', event => {
             showRegistrationWindow(() => viewBasketBtn.click());
         }
     });
-    showModalWindow([currentCustomerLabel, orders,
+    showModalWindow([currentCustomerLabel, orderItems,
         totalCostElem, orderBtn],
         { className: 'basket' });
 })
 
-function showRegistrationWindow(callback = function(){}) {
+function showRegistrationWindow(callback = function () { }) {
     let currentCustomerLabel = null;
     if (localStorage.getItem("customerName") !== null) {
         currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
@@ -234,7 +239,7 @@ function showRegistrationWindow(callback = function(){}) {
                 name: nameInput.value,
                 phoneNum: phoneNumberInput.value
             };
-            let response = await fetch(location.href + "log-in", {
+            let response = await fetch(location.origin + "/customers/log-in", {
                 method: "PROPFIND",
                 body: JSON.stringify(requestBody),
                 headers: { "Content-Type": "application/json" }
@@ -270,15 +275,17 @@ function showRegistrationWindow(callback = function(){}) {
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", event => {
         event.target.closest(".modal-window").closeWindow();
-        new Customer("customer", (createdCustomerName) => {
+        new Customer("customer", (createdCustomerName, createdCustomerPhoneNum) => {
             customerName.textContent = createdCustomerName;
             customerName.style.display = "";
             changeAccountBtn.textContent = "Змінити акаунт";
+            localStorage.setItem("customerName", createdCustomerName);
+            localStorage.setItem("customerPhoneNum", createdCustomerPhoneNum);
             callback();
         });
     });
     const separator = createElement({ class: "separator" });
-    const enterAsEmployeeBtn = createElement({ name: 'a'});
+    const enterAsEmployeeBtn = createElement({ name: 'a' });
     enterAsEmployeeBtn.href = "/employee";
     enterAsEmployeeBtn.innerHTML = `<button class="enter-as-employee-btn">Увійти як працівник</button>`;
     enterAsEmployeeBtn.addEventListener('click', event => {

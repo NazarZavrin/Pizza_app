@@ -1,6 +1,7 @@
 "use strict";
 
-import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, normalizeOrders, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, orderItemsToOrders, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
+import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
 const toEmployeePageBtn = document.getElementsByClassName("to-employee-page-btn")[0];
@@ -47,7 +48,7 @@ refreshBtn.addEventListener('click', async event => {
         let requestBody = {
             employeeName: localStorage.getItem("employeeName"),
         };
-        let response = await fetch(location.href + "/get-orders", {
+        let response = await fetch(location.origin + "/orders/get-orders", {
             method: "PROPFIND",
             body: JSON.stringify(requestBody),
             headers: { "Content-Type": "application/json" }
@@ -57,8 +58,8 @@ refreshBtn.addEventListener('click', async event => {
             if (!result.success) {
                 throw new Error(result.message || "Server error.");
             } else {
-                // console.log(result.orders);
-                orders = normalizeOrders(result.orders).map(createOrderElement);
+                // console.log(result.orderItems);
+                orders = orderItemsToOrders(result.orderItems).map(createOrderElement);
                 // console.log(orders);
                 searchBtn.click();
             }

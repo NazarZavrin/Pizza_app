@@ -280,7 +280,7 @@ button {
 .wrapper > header > #employee-name {
   margin-right: 5px;
 }
-.wrapper > header > a:has(.exit-btn) {
+.wrapper > header > a[href="/"] {
   grid-column-start: 4;
 }
 .wrapper > header .exit-btn {
