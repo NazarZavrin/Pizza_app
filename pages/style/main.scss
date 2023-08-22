@@ -37,12 +37,22 @@ button {
   padding: 7px;
   color: white;
   background-color: blue;
-  & > #customer-name {
+  & > #account-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: slategray;
     margin-right: 5px;
+    cursor: pointer;
+    & > img {
+      max-width: 100%;
+    }
   }
-  & > .change-account-btn {
-    background-color: dodgerblue;
+  & > #customer-name {
   }
+  // & > .change-account-btn {
+  //   background-color: dodgerblue;
+  // }
   & > .view-basket-btn {
     grid-column-start: 4;
   }

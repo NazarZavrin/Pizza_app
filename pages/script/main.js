@@ -6,7 +6,7 @@ import "./polyfills.js";
 // console.info(``);
 
 const customerName = document.getElementById("customer-name");
-const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
+const accountBtn = document.getElementById("account-btn");
 const viewBasketBtn = document.getElementsByClassName("view-basket-btn")[0];
 const content = document.querySelector(".wrapper > main");
 
@@ -15,14 +15,18 @@ let extraToppings = [];
 
 if (localStorage.getItem("customerName") === null) {
     customerName.style.display = "none";
-    changeAccountBtn.textContent = "Увійти або створити акаунт";
+    // changeAccountBtn.textContent = "Увійти або створити акаунт";
 } else {
     customerName.textContent = localStorage.getItem("customerName");
     customerName.style.display = "";
 }
-changeAccountBtn.addEventListener("click", event => {
-    showRegistrationWindow();
-})
+accountBtn.addEventListener("click", event => {
+    if (localStorage.getItem("customerName") === null) {
+        showRegistrationWindow();
+    } else {
+        showCustomerProfile();
+    }
+});
 
 content.addEventListener("click", async event => {
     // logic of adding pizza to the basket
@@ -102,8 +106,7 @@ viewBasketBtn.addEventListener('click', event => {
     let currentCustomerLabel = null;
     if (localStorage.getItem("customerName") !== null) {
         currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
-        currentCustomerLabel.style.fontSize = "16px";
-        currentCustomerLabel.style.textAlign = "center";
+        currentCustomerLabel.classList.add("current-customer-label");
     }
     let orderItems = createElement({ name: 'section' });
     basket.forEach(orderItem => {
@@ -127,7 +130,7 @@ viewBasketBtn.addEventListener('click', event => {
             (totalCost, orderItem) => totalCost + Number.parseFloat(orderItem.cost.match(/= (\d+)/)[1]), 0)
             } грн.`;
         if (totalCostElem.textContent.includes(": 0 грн")) {
-            orderItems.textContent = "Кошик пустий";
+            orderItems.innerHTML = "<p style='padding: 50px'>Кошик пустий</p>";
             totalCostElem.textContent = "";
             orderBtn.style.display = "none";
         } else {
@@ -179,7 +182,7 @@ viewBasketBtn.addEventListener('click', event => {
                         throw new Error(result.message || "Server error.");
                     } else {
                         setWarningAfterElement(orderBtn, `Замовлення оформлено. Номер чеку: ${result.receiptNum || -1}.`);
-                        element.nextElementSibling.style.width = "fit-content";
+                        orderBtn.nextElementSibling.style.width = "fit-content";
                         return;
                     }
                 }
@@ -199,14 +202,8 @@ viewBasketBtn.addEventListener('click', event => {
 })
 
 function showRegistrationWindow(callback = function () { }) {
-    let currentCustomerLabel = null;
-    if (localStorage.getItem("customerName") !== null) {
-        currentCustomerLabel = createElement({ content: "Покупець: " + localStorage.getItem("customerName") });
-        currentCustomerLabel.style.fontSize = "16px";
-        currentCustomerLabel.style.textAlign = "center";
-    }
-    const header = createElement({ name: "header" });
-    header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна покупця";
+    // const header = createElement({ name: "header" });
+    // header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна покупця";
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
     nameInput.setAttribute("autocomplete", "off");
@@ -267,35 +264,55 @@ function showRegistrationWindow(callback = function () { }) {
             alert("Error");
             return;
         }
-        changeAccountBtn.textContent = "Змінити акаунт";
+        // changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
         callback();
     });
-    const createAccountLabel = createElement({ name: "span", content: "Немає аккаунту? Створіть його:", class: "create-account-label" });
+    // const createAccountLabel = createElement({ name: "span", content: "Немає аккаунту? Створіть його:", class: "create-account-label" });
     const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
     createAccountBtn.addEventListener("click", event => {
         event.target.closest(".modal-window").closeWindow();
         new Customer("customer", (createdCustomerName, createdCustomerPhoneNum) => {
             customerName.textContent = createdCustomerName;
             customerName.style.display = "";
-            changeAccountBtn.textContent = "Змінити акаунт";
+            // changeAccountBtn.textContent = "Змінити акаунт";
             localStorage.setItem("customerName", createdCustomerName);
             localStorage.setItem("customerPhoneNum", createdCustomerPhoneNum);
             callback();
         });
     });
-    const separator = createElement({ class: "separator" });
+    // const separator = createElement({ class: "separator" });
     const enterAsEmployeeBtn = createElement({ name: 'a' });
     enterAsEmployeeBtn.href = "/employee";
     enterAsEmployeeBtn.innerHTML = `<button class="enter-as-employee-btn">Увійти як працівник</button>`;
     enterAsEmployeeBtn.addEventListener('click', event => {
         localStorage.removeItem("customerName");
         localStorage.removeItem("customerPhoneNum");
-    })
-    showModalWindow([currentCustomerLabel,
-        currentCustomerLabel ? separator.cloneNode(true) : null,
-        header, nameLabel, nameInput,
+    });
+    showModalWindow([nameLabel, nameInput,
         phoneNumberLabel, phoneNumberInput, logInBtn,
-        createAccountLabel, createAccountBtn, separator, enterAsEmployeeBtn],
+        createAccountBtn, enterAsEmployeeBtn],
         { className: 'registration' });
+}
+function showCustomerProfile() {
+    const customerInfo = createElement({ name: 'section', class: 'info' });
+    customerInfo.innerHTML = `<div>${localStorage.getItem("customerName")}</div>
+        <div>${localStorage.getItem("customerPhoneNum")}</div>`;
+    const exitBtn = createElement({ name: 'button', class: 'exit-btn', content: 'Вийти' });
+    exitBtn.addEventListener('click', event => {
+        customerName.style.display = "none";
+        localStorage.removeItem("customerName");
+        localStorage.removeItem("customerPhoneNum");
+        event.target.closest(".modal-window").closeWindow();
+        showRegistrationWindow();
+    });
+    const enterAsEmployeeBtn = createElement({ name: 'a' });
+    enterAsEmployeeBtn.href = "/employee";
+    enterAsEmployeeBtn.innerHTML = `<button class="enter-as-employee-btn">Увійти як працівник</button>`;
+    enterAsEmployeeBtn.addEventListener('click', event => {
+        localStorage.removeItem("customerName");
+        localStorage.removeItem("customerPhoneNum");
+    });
+    showModalWindow([customerInfo, exitBtn, enterAsEmployeeBtn],
+        { className: 'profile' });
 }

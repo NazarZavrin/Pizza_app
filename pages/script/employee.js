@@ -4,8 +4,7 @@ import { createElement, setWarningAfterElement, showModalWindow, showPassword, u
 import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
-const changeAccountBtn = document.getElementsByClassName("change-account-btn")[0];
-const exitBtn = document.getElementsByClassName("exit-btn")[0];
+const accountBtn = document.getElementById("account-btn");
 const content = document.getElementsByTagName("main")[0];
 const optionButtons = content.querySelectorAll('a > button');
 
@@ -16,27 +15,19 @@ if (localStorage.getItem("employeeName") === null) {
 } else {
     employeeName.textContent = localStorage.getItem("employeeName");
     employeeName.style.display = "";
-    changeAccountBtn.textContent = "Змінити акаунт";
+    // changeAccountBtn.textContent = "Змінити акаунт";
     showCorrectButtons();
     content.style.display = "";
 }
-changeAccountBtn.addEventListener("click", event => {
-    showRegistrationWindow();
-});
-exitBtn.addEventListener("click", event => {
-    localStorage.removeItem("employeeName");
+accountBtn.addEventListener("click", event => {
+    if (localStorage.getItem("employeeName") === null) {
+        showRegistrationWindow();
+    } else {
+        showEmployeeProfile();
+    }
 });
 
 function showRegistrationWindow() {
-    let currentEmployeeLabel = null;
-    if (localStorage.getItem("employeeName") !== null) {
-        currentEmployeeLabel = createElement({ content: "Співробітник: " + localStorage.getItem("employeeName") });
-        currentEmployeeLabel.style.fontSize = "16px";
-        currentEmployeeLabel.style.textAlign = "center";
-    }
-    const separator = createElement({ class: "separator" });
-    const header = createElement({ name: "header" });
-    header.textContent = currentEmployeeLabel === null ? "Вхід" : "Змінити акаунт";
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
     const nameInput = createElement({ name: "input" });
     nameInput.setAttribute("autocomplete", "off");
@@ -94,15 +85,27 @@ function showRegistrationWindow() {
             alert("Error");
             return;
         }
-        changeAccountBtn.textContent = "Змінити акаунт";
+        // changeAccountBtn.textContent = "Змінити акаунт";
         event.target.closest(".modal-window").closeWindow();
     });
-    showModalWindow([currentEmployeeLabel,
-        currentEmployeeLabel ? separator : null,
-        header, nameLabel, nameInput,
+    showModalWindow([nameLabel, nameInput,
         passwordLabel, passwordBlock,
         logInBtn],
         { className: 'registration' });
+}
+
+function showEmployeeProfile() {
+    const employeeInfo = createElement({ name: 'section', class: 'info' });
+    employeeInfo.innerHTML = `<div>${localStorage.getItem("employeeName")}</div>`;
+    const exitBtn = createElement({ name: 'button', class: 'exit-btn', content: 'Вийти' });
+    exitBtn.addEventListener('click', event => {
+        employeeName.style.display = "none";
+        localStorage.removeItem("employeeName");
+        event.target.closest(".modal-window").closeWindow();
+        showRegistrationWindow();
+    });
+    showModalWindow([employeeInfo, exitBtn],
+        { className: 'profile' });
 }
 
 function showCorrectButtons() {

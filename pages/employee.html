@@ -11,13 +11,19 @@
 <body>
     <div class="wrapper">
         <header>
+            <div id="account-btn">
+                <img src="/img/avatar.png" onerror="event.target.setAttribute('src', '/img/1x1-transparent.png'); event.target.onerror = null;">
+            </div>
             <span id="employee-name"></span>
-            <button class="change-account-btn">Увійти</button>
             <a href="/">
-                <button class="exit-btn">Вихід</button>
+                <button class="to-main-page-btn">Оформити замовлення</button>
             </a>
+            <!-- <a href="/">
+                <button class="exit-btn">Вихід</button>
+            </a> -->
         </header>
         <main style="display: none;">
+            
             <a href="/orders">
                 <button class="to-orders-page-btn">Видача і видалення замовлень</button>
             </a>

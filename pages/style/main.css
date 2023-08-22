@@ -147,7 +147,7 @@ h1, h2, h3, h4, h5, h6 {
 .modal-window button {
   background-color: limegreen;
   color: white;
-  margin: 5px 0;
+  margin-top: 5px;
   padding: 5px;
   border-radius: 5px;
   text-align: center;
@@ -176,23 +176,32 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 5px;
   white-space: nowrap;
 }
-.modal-window.registration .create-account-label {
-  text-align: center;
-  color: gray;
-  font-size: 16px;
-}
 .modal-window.registration button.create-account-btn {
   background-color: dodgerblue;
-  margin-top: 0;
 }
 .modal-window.registration button.enter-as-employee-btn {
   background-color: royalblue;
 }
-.modal-window.registration .separator {
+.modal-window.profile > section {
+  text-align: center;
   width: 100%;
-  height: 2px;
-  background-color: gray;
+  border: 1px solid gray;
   border-radius: 3px;
+}
+.modal-window.profile > section > div:nth-child(2) {
+  font-size: 14px;
+}
+.modal-window.profile .exit-btn {
+  background-color: red;
+}
+.modal-window.profile .enter-as-employee-btn {
+  background-color: royalblue;
+}
+.modal-window.basket .current-customer-label {
+  border: 1px solid gray;
+  border-radius: 14px;
+  margin-bottom: 5px;
+  padding: 3px;
 }
 .modal-window.basket section {
   max-height: 60vh;
@@ -277,11 +286,16 @@ button {
   color: white;
   background-color: blue;
 }
-.wrapper > header > #customer-name {
+.wrapper > header > #account-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: slategray;
   margin-right: 5px;
+  cursor: pointer;
 }
-.wrapper > header > .change-account-btn {
-  background-color: dodgerblue;
+.wrapper > header > #account-btn > img {
+  max-width: 100%;
 }
 .wrapper > header > .view-basket-btn {
   grid-column-start: 4;

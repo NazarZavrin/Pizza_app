@@ -37,6 +37,17 @@ button {
   padding: 7px;
   color: white;
   background-color: blue;
+  & > #account-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: slategray;
+    margin-right: 5px;
+    cursor: pointer;
+    & > img {
+      max-width: 100%;
+    }
+  }
   & > #employee-name {
     margin-right: 5px;
   }
@@ -63,16 +74,19 @@ main {
 main > a {
   display: inline-block;
   margin: 3px;
-  & > .to-orders-page-btn {
+  .to-main-page-btn {
+    background-color: cadetblue;
+  }
+  .to-orders-page-btn {
     background-color: limegreen;
   }
-  & > .to-customers-page-btn {
+  .to-customers-page-btn {
     // background-color: ;
   }
-  & > .to-employees-page-btn {
+  .to-employees-page-btn {
     background-color: gray;
   }
-  & > .report-btn {
+  .report-btn {
     background-color: slateblue;
   }
 }
