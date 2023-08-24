@@ -1,11 +1,10 @@
 "use strict";
 
-import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, orderItemsToOrders, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, dayAndMonthAreCorrect, hourAndMinuteAreCorrect, isFloat, isInt, orderItemsToOrders, setWarningAfterElement, showModalWindow } from "./useful-for-client.js";
 import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
 const toEmployeePageBtn = document.getElementsByClassName("to-employee-page-btn")[0];
-const content = document.querySelector(".wrapper > main");
 const searchBtn = document.getElementById("search-btn");
 const sortingSection = document.getElementsByClassName("actions-section__sorting")[0];
 const sortBySelect = document.getElementById("sort-by");

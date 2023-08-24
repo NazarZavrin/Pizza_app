@@ -182,6 +182,9 @@ h1, h2, h3, h4, h5, h6 {
 .modal-window.registration button.enter-as-employee-btn {
   background-color: royalblue;
 }
+.modal-window.profile {
+  min-width: 200px;
+}
 .modal-window.profile > section {
   text-align: center;
   width: 100%;

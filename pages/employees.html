@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees</title>
+    <link rel="stylesheet" href="./style/employees.css" />
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <span id="employee-name"></span>
+            <a href="/employee">
+                <button class="to-employee-page-btn">На сторінку співробітника</button>
+            </a>
+        </header>
+        <main>
+            <header>
+                <section class="search-section">
+                    <header>Пошук за іменем співробітника:</header>
+                    <div class="search-section__div">
+                        <input name="employee_name" type="text" placeholder="Ім'я співробітника" autocomplete="off">
+                        <button id="search-btn">Шукати</button>
+                    </div>
+                </section>
+            </header>
+            <section id="employees"></section>
+        </main>
+    </div>
+    <script src="./script/employees.js" type="module"></script>
+</body>
+
+</html>

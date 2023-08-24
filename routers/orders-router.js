@@ -35,28 +35,28 @@ ordersRouter.post("/create-order", (req, res, next) => {
             `, [orderItem.pizzaName]);
             let orderItemCost = Number.parseFloat(result.rows[0].price);
             if (orderItem.extraToppings === undefined) {
-                // if no extra topping were selected
+                // if no extra topping were selected - insert only pizza
                 result = await pool.query(`INSERT INTO order_items 
-                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num, employee, paid, issuance_datetime) VALUES
-                (DEFAULT, $1, $2, $3, $4, $5, $6, NULL, NULL, NULL) RETURNING datetime;
-                `, [receiptNum, currentDateTime, orderItem.pizzaName, orderItemCost, req.body.customerName, req.body.customerPhoneNum]);// insert only pizza
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num) VALUES
+                (DEFAULT, $1, $2, $3, $4, $5, $6) RETURNING datetime;
+                `, [receiptNum, currentDateTime, orderItem.pizzaName, orderItemCost, req.body.customerName, req.body.customerPhoneNum]);
             } else {
-                // if some extra toppings were selected
+                // if some extra toppings were selected - insert pizza and extra toppings
                 result = await pool.query(`
                 SELECT SUM(price) FROM extra_topping WHERE name = ANY ($1);
                 `, [orderItem.extraToppings]);// calc sum of selected extra toppings
                 orderItemCost += Number.parseFloat(result.rows[0].sum);
                 result = await pool.query(`WITH inserted_order AS (
                 INSERT INTO order_items 
-                (receipt_num, datetime, pizza, cost, customer_name, customer_phone_num) VALUES
-                ($1, $2, $3, $4, $5, $6) RETURNING *
+                (num, receipt_num, datetime, pizza, cost, customer_name, customer_phone_num) VALUES
+                (DEFAULT, $1, $2, $3, $4, $5, $6) RETURNING *
                 )
                 INSERT INTO order_extra_topping VALUES ` + orderItem.extraToppings.map(
                     (item, index) => `((SELECT num FROM inserted_order), $${index + 7})`
                 ).join(", ").concat("RETURNING (SELECT datetime FROM inserted_order);"),
                     [receiptNum, currentDateTime, orderItem.pizzaName, orderItemCost,
                         req.body.customerName, req.body.customerPhoneNum,
-                        ...orderItem.extraToppings]);// insert pizza and extra toppings
+                        ...orderItem.extraToppings]);
             }
         }
         result = await pool.query("UPDATE customer SET last_action_date_time = $1 WHERE name = $2 AND phone_num = $3 AND deleted_id = 0;",
@@ -87,7 +87,7 @@ ordersRouter.propfind("/get-orders", (req, res, next) => {
         SELECT num, receipt_num, pizza, datetime, order_items.cost,
         customer_name, customer_phone_num
         FROM order_items 
-        WHERE employee IS NULL AND order_items.customer_deleted_id = 0
+        WHERE employee_name IS NULL AND customer_deleted_id = 0
         ORDER BY datetime DESC, pizza ASC;`);
         // ↓ add array of extraToppings to each order item
         let orderItems = result.rows.map(orderItem => {
@@ -98,7 +98,7 @@ ordersRouter.propfind("/get-orders", (req, res, next) => {
         result = await pool.query(`
         SELECT order_extra_topping.extra_topping, order_extra_topping.order_num 
         FROM order_extra_topping INNER JOIN order_items ON num = order_num
-        WHERE employee IS NULL AND order_items.customer_deleted_id = 0
+        WHERE employee_name IS NULL AND order_items.customer_deleted_id = 0
         ORDER BY datetime DESC, pizza ASC;`);
         // ↓ Task 3: add to each order item it's extraToppings
         orderItems.forEach(orderItem => {
@@ -135,7 +135,7 @@ ordersRouter.patch("/issue", (req, res, next) => {
         let result = await pool.query(`SELECT NOW();`);
         const currentDateTime = result.rows[0].now;
         await pool.query(`UPDATE order_items 
-        SET employee = $1, paid = $2, issuance_datetime = $3 WHERE receipt_num = $4;`,
+        SET employee_name = $1, paid = $2, issuance_datetime = $3 WHERE receipt_num = $4;`,
             [req.body.employeeName, req.body.paid, currentDateTime, req.body.receiptNum]);
         await pool.query("COMMIT;");
         res.json({ success: true });
@@ -182,6 +182,7 @@ ordersRouter.all(/^\/(\d+)$/, async (req, res, next) => {
                 delete orderItem.num;
                 delete orderItem.customer_phone_num;
                 delete orderItem.customer_deleted_id;
+                delete orderItem.employee_deleted_id;
             })
             res.json({ success: true, orderItems: orderItems });
         } catch (error) {

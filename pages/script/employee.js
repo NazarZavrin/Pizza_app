@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, setWarningAfterElement, showModalWindow, showPassword, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, setWarningAfterElement, showModalWindow, showPassword, nameIsCorrect } from "./useful-for-client.js";
 import "./polyfills.js";
 
 const employeeName = document.getElementById("employee-name");
@@ -43,7 +43,7 @@ function showRegistrationWindow() {
         setWarningAfterElement(nameInput, '');
         setWarningAfterElement(passwordInput, '');
         setWarningAfterElement(logInBtn, '');
-        let everythingIsCorrect = userNameIsCorrect(nameInput);
+        let everythingIsCorrect = nameIsCorrect(nameInput);
         if (passwordInput.value.length === 0) {
             setWarningAfterElement(passwordInput, 'Введіть пароль');
             everythingIsCorrect = false;

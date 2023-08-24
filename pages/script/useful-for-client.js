@@ -68,7 +68,7 @@ export function setWarningAfterElement(element, warningText) {
         element.nextElementSibling.style.width = "";// set width of warning element to normal
     }
 }
-export function userNameIsCorrect(inputElement, elementForWarning = null, beginning = "Ім'я") {
+export function nameIsCorrect(inputElement, elementForWarning = null, beginning = "Ім'я") {
     let warningText = "";
     if (inputElement.value.length > 50) {
         warningText = beginning + " не повинно бути більше, ніж 50 символів.";

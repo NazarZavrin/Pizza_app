@@ -55,24 +55,9 @@ CREATE TABLE employee (
   email VARCHAR(50) NOT NULL
 );
 ALTER TABLE employee ADD password VARCHAR(20);
-
-CREATE TABLE pizza_order (
-  num BIGSERIAL PRIMARY KEY NOT NULL,
-  receipt_num BIGINT NOT NULL,
-  datetime TIMESTAMP NOT NULL DEFAULT NOW(),
-  pizza VARCHAR(20) NOT NULL REFERENCES pizza(name),
-  cost DECIMAL NOT NULL,
-  customer_name VARCHAR(50) NOT NULL,
-  customer_phone_num BIGINT NOT NULL,
-  FOREIGN KEY (customer_name, customer_phone_num) REFERENCES customer (name, phone_num),
-  employee VARCHAR(50) NULL DEFAULT NULL REFERENCES employee (name)
-);
-ALTER TABLE pizza_order ADD paid DECIMAL NULL DEFAULT NULL;
-ALTER TABLE pizza_order ADD issuance_datetime TIMESTAMP NULL DEFAULT NULL;
-SELECT constraint_name FROM INFORMATION_SCHEMA.table_constraints WHERE table_name = 'pizza_order';
-ALTER TABLE pizza_order DROP CONSTRAINT pizza_order_customer_name_customer_phone_num_fkey;
-ALTER TABLE pizza_order ADD customer_deleted_id INT DEFAULT 0;
-ALTER TABLE pizza_order ADD CONSTRAINT pizza_order_customer_name_customer_phone_num_deleted_id_fkey FOREIGN KEY (customer_name, customer_phone_num, customer_deleted_id) REFERENCES customer(name, phone_num, deleted_id) ON UPDATE CASCADE;
+ALTER TABLE employee ADD deleted_id INT DEFAULT 0;
+ALTER TABLE employee DROP CONSTRAINT employee_pkey;
+ALTER TABLE employee ADD CONSTRAINT employee_pkey PRIMARY KEY (name, deleted_id);
 
 CREATE TABLE order_items (
   num BIGSERIAL PRIMARY KEY NOT NULL,
@@ -87,7 +72,9 @@ CREATE TABLE order_items (
   paid DECIMAL NULL,
   issuance_datetime timestamp NULL
 )
-ALTER TABLE order_items ADD CONSTRAINT order_items_fkey FOREIGN KEY (customer_name, customer_phone_num, customer_deleted_id) REFERENCES customer(name, phone_num, deleted_id) ON UPDATE CASCADE;
+ALTER TABLE order_items ADD CONSTRAINT order_items_customer_fkey FOREIGN KEY (customer_name, customer_phone_num, customer_deleted_id) REFERENCES customer (name, phone_num, deleted_id) ON UPDATE CASCADE;
+ALTER TABLE order_items RENAME COLUMN employee TO employee_name;
+ALTER TABLE order_items ADD CONSTRAINT order_items_employee_fkey FOREIGN KEY (employee_name, employee_deleted_id) REFERENCES employee (name, deleted_id) ON UPDATE CASCADE;
 
 CREATE TABLE order_extra_topping (
   order_num BIGINT NOT NULL REFERENCES pizza_order(num),

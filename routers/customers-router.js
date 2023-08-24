@@ -28,7 +28,7 @@ customersRouter.post("/create-account", (req, res, next) => {
         } else {
             result = await pool.query(`
             INSERT INTO customer (name, phone_num, email) 
-            VALUES ($1, $2, $3) RETURNING *;
+            VALUES ($1, $2, $3) RETURNING name, phone_num, email;
             `, [req.body.name, req.body.phoneNum, req.body.email]);
             await pool.query(`COMMIT;`);
         }
@@ -86,11 +86,7 @@ customersRouter.propfind("/get-customers", (req, res, next) => {
         if (!req.body.employeeName) {
             throw new Error("Customers receiving: req.body doesn't contain employee name: " + JSON.stringify(req.body));
         }
-        let result = await pool.query(`SELECT * FROM customer WHERE deleted_id = 0;`);
-        result.rows.forEach(customer => {
-            delete customer.last_action_date_time;
-            delete customer.deleted_id;
-        });
+        let result = await pool.query(`SELECT name, phone_num, email FROM customer WHERE deleted_id = 0;`);
         res.json({ success: true, customers: result.rows });
     } catch (error) {
         console.log(error.message);
@@ -106,8 +102,8 @@ customersRouter.patch("/edit", (req, res, next) => {
     try {
         // console.log(req.body);
         // console.log(req.body.oldInfo);
-        if (!['newCustomerName', 'newCustomerPhoneNum', 'newCustomerEmail',
-            'oldInfo', 'employeeName'].every(key => Object.keys(req.body).includes(key))
+        if (!['employeeName', 'newCustomerName', 'newCustomerPhoneNum', 'newCustomerEmail',
+            'oldInfo'].every(key => Object.keys(req.body).includes(key))
             || !['name', 'phoneNum', 'email'].every(key => Object.keys(req.body.oldInfo).includes(key))) {
             throw new Error("Customer info changing: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
@@ -116,7 +112,8 @@ customersRouter.patch("/edit", (req, res, next) => {
         SELECT * FROM customer WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;
         `, [req.body.newCustomerName, req.body.newCustomerPhoneNum]);
         if (result.rowCount > 0) {
-            throw new Error("Customer with such name and phone number already exists.");
+            res.json({ success: false, message: "Сustomer with such name already exists." });
+            return;
         } else {
             await pool.query(`UPDATE customer 
             SET name = $1, phone_num = $2, email = $3 
@@ -146,7 +143,7 @@ customersRouter.delete("/delete", (req, res, next) => {
         }
         await pool.query(`UPDATE customer 
         SET deleted_id = (SELECT MAX(deleted_id) FROM customer 
-        WHERE name = $1 AND phone_num = $2) + 1
+        WHERE name = $1 AND phone_num = $2) + 1 
         WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;`,
             [req.body.customerName, req.body.customerPhoneNum]);
         res.json({ success: true });

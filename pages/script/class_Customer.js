@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect } from "./useful-for-client.js";
 
 let customers = [];
 let customersToDisplay = [];
@@ -24,11 +24,10 @@ export default class Customer {
         const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
         createAccountBtn.addEventListener("click", async event => {
             setWarningAfterElement(createAccountBtn, '');
-            let everythingIsCorrect = true;
-            everythingIsCorrect = userNameIsCorrect(nameInput) && everythingIsCorrect;
+            let everythingIsCorrect = nameIsCorrect(nameInput);
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
-            if (everythingIsCorrect === false) {
+            if (!everythingIsCorrect) {
                 return;
             }
             try {
@@ -77,9 +76,9 @@ export default class Customer {
         const email = createElement({ class: 'email', content: 'Email: ' + customer.email });
         info.append(email);
         const buttons = createElement({ name: 'section', class: 'buttons' });
+        customer.element.append(buttons);
         const editInfoBtn = createElement({ name: 'button', class: 'edit-info-btn', content: 'Редагувати дані покупця' });
         buttons.append(editInfoBtn);
-        customer.element.append(buttons);
         const deleteBtn = createElement({ name: 'button', class: 'delete-btn', content: 'Видалити покупця' });
         if (localStorage.getItem("employeeName") === 'Admin') {
             deleteBtn.style.display = 'block';
@@ -151,7 +150,7 @@ export default class Customer {
         confirmChangesBtn.addEventListener("click", async event => {
             setWarningAfterElement(confirmChangesBtn, '');
             let everythingIsCorrect = true;
-            everythingIsCorrect = userNameIsCorrect(nameInput) && everythingIsCorrect;
+            everythingIsCorrect = nameIsCorrect(nameInput) && everythingIsCorrect;
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
             if (everythingIsCorrect === false) {
@@ -159,11 +158,11 @@ export default class Customer {
             }
             try {
                 let requestBody = {
+                    employeeName: localStorage.getItem("employeeName"),
                     newCustomerName: nameInput.value,
                     newCustomerPhoneNum: phoneNumberInput.value,
                     newCustomerEmail: emailInput.value,
                     oldInfo, // oldInfo: oldInfo
-                    employeeName: localStorage.getItem("employeeName"),
                 };
                 let response = await fetch(location.origin + "/customers/edit", {
                     method: "PATCH",

@@ -1,9 +1,15 @@
 "use strict";
 
 import Customer from "./class_Customer.js";
-import { createElement, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, userNameIsCorrect } from "./useful-for-client.js";
+import { createElement, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect } from "./useful-for-client.js";
 import "./polyfills.js";
+
 // console.info(``);
+console.info(`Add passwords to customers`);
+console.info("Employees and customers can change their passwords");
+console.info(`Add passport number to customers and employees, primary key - passport number and deleted_id`);
+console.info(`employees, customers arrays into classes as private fields`);
+console.info(`Clean imports`);
 
 const customerName = document.getElementById("customer-name");
 const accountBtn = document.getElementById("account-btn");
@@ -219,7 +225,7 @@ function showRegistrationWindow(callback = function () { }) {
         setWarningAfterElement(logInBtn, '');
         let everythingIsCorrect = true;
         if (nameInput.value.length > 0) {
-            everythingIsCorrect = userNameIsCorrect(nameInput) && everythingIsCorrect;
+            everythingIsCorrect = nameIsCorrect(nameInput) && everythingIsCorrect;
         }
         if (phoneNumberInput.value.length > 0) {
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;

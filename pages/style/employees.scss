@@ -1,0 +1,151 @@
+@import "./null-style.scss";
+@import "./modal-window.scss";
+html,
+body {
+  display: flex;
+  min-width: fit-content;
+  height: fit-content;
+  min-height: 100vh;
+}
+button {
+  background-color: limegreen;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font: inherit;
+  text-align: center;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: fit-content;
+  height: fit-content;
+  min-height: 100vh;
+  font: 20px "Calibri";
+  /*
+  font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)));
+  ↑ На экране шириной 320 пикселей шрифт имеет размер 16 пикселей, 
+  а на экране шириной 1200 пикселей – размер 24 пикселя. */
+}
+.wrapper > header {
+  width: 100%;
+  min-height: 50px;
+  // position: fixed;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 7px;
+  color: white;
+  background-color: blue;
+  & > #employee-name {
+    margin-right: 5px;
+  }
+  & > .to-employee-page-btn {
+    background-color: dodgerblue;
+  }
+}
+main {
+  width: 100%;
+  // margin-top: 50px; // the height of header
+  min-width: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+main > header {
+  display: flex;
+  flex-direction: row;
+  // flex-wrap: wrap;
+  justify-content: center;
+  // align-items: center;
+  padding: 5px;
+  border: 1.5px solid dimgray;
+  box-shadow: 0 1px 3px 1px gray;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+  & > .search-section {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    & > header {
+      text-align: center;
+      margin-bottom: 3px;
+    }
+    & > .search-section__div {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      & > input[name="employee_name"] {
+        font: inherit;
+        width: 170px;
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 0 3px;
+        margin: 5px 10px 5px 0;
+      }
+    }
+  }
+  & #search-btn {
+    background-color: dodgerblue;
+    // margin-top: 3px;
+  }
+}
+main > #employees {
+  width: 100%;
+  min-width: fit-content;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  & > #create-employee {
+    width: 100%;
+    font-size: 28px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  & > .employee {
+    width: 100%;
+    min-width: fit-content;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+    box-shadow: 0 0 3px 1px gray;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+    & > section.info {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-content: center;
+      & > div {
+        display: flex;
+        align-items: center;
+        margin: 5px;
+      }
+    }
+    & > section.buttons {
+      display: flex;
+      flex-direction: column;
+      & > .edit-info-btn {
+        background-color: dodgerblue;
+        margin: 3px;
+      }
+      & > .delete-btn {
+        // display: none;
+        background-color: red;
+        margin: 3px;
+      }
+    }
+    
+  }
+}
+.deleted {
+  transform: scale(0);
+  transition: all 0.75s ease-out;
+}

@@ -13,7 +13,7 @@ if (localStorage.getItem("employeeName")) {
                 let result = await response.json();
                 if (!result.success) {
                     if (result.message.includes("Non-existent")) {
-                        document.body.innerHTML = `<pre>Неіснуючий номер чеку</pre>`;
+                        document.body.innerHTML = `<pre>Неіснуючий номер чеку.</pre>`;
                     } else {
                         throw new Error(result.message || "Server error.");
                     }
@@ -53,7 +53,11 @@ if (localStorage.getItem("employeeName")) {
                         elem.insertAdjacentHTML("beforebegin",
                             `<div>${labels[item]}</div>`);
                     }
+                    document.body.getElementsByTagName("pre")[0]?.remove();
+                    document.getElementsByClassName("wrapper")[0].style.display = "";
                 }
+            } else {
+                document.body.innerHTML = `<pre>Server error.</pre>`;
             }
         } catch (error) {
             console.error(error.message);

@@ -182,19 +182,22 @@ h1, h2, h3, h4, h5, h6 {
 .modal-window.registration button.enter-as-employee-btn {
   background-color: royalblue;
 }
-.modal-window.customer-profile > section {
+.modal-window.profile {
+  min-width: 200px;
+}
+.modal-window.profile > section {
   text-align: center;
   width: 100%;
   border: 1px solid gray;
   border-radius: 3px;
 }
-.modal-window.customer-profile > section > div:last-child {
+.modal-window.profile > section > div:nth-child(2) {
   font-size: 14px;
 }
-.modal-window.customer-profile .exit-btn {
+.modal-window.profile .exit-btn {
   background-color: red;
 }
-.modal-window.customer-profile .enter-as-employee-btn {
+.modal-window.profile .enter-as-employee-btn {
   background-color: royalblue;
 }
 .modal-window.basket .current-customer-label {
