@@ -65,8 +65,4 @@ employeesContainer.addEventListener('click', async event => {
         let employeeIndex = [...employeesContainer.querySelectorAll('.edit-info-btn')].findIndex(btn => btn === editInfoBtn);
         await Employee.editInfo(employeeIndex, () => refreshData());
     }
-})
-
-// console.log("Admin can not be deleted");
-// console.log("Admin's name can not be changed");
-// console.log("Admin can change his password but not employees'");
+});

@@ -1,14 +1,35 @@
 "use strict";
 
 import Customer from "./class_Customer.js";
-import { createElement, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect } from "./useful-for-client.js";
+import { createElement, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect, showPassword, passwordIsCorrect } from "./useful-for-client.js";
 import "./polyfills.js";
 
 // console.info(``);
+
+/*
+1 /employees emp creation +passport_num input, 
+passport_num checking (only letters and numbers allowed), 
+passport_num must be unique
+2 /employee emp profile +password changing
+3 /customers cus creation +passport_num input, 
+passport_num checking (only letters and numbers allowed), 
+passport_num must be unique
+4 /customers passport_num changing
+5 /employees passport_num changing
+6 /customers +password on creation form
+7 main page: customer must enter password to log-in, 
+change customer-router logic
+8 main page: cus profile +password changing
+*/
+
 console.info(`Add passwords to customers`);
 console.info("Employees and customers can change their passwords");
-console.info(`Add passport number to customers and employees, primary key - passport number and deleted_id`);
-console.info(`employees, customers arrays into classes as private fields`);
+console.info(`Add passport number to customers and employees, don't forget to display it on customers and employees pages respectively`);
+console.info(`lastInput.addEventListener("keyup", event => confirmBtn.click())`);
+console.info(`Stretch warning message in modal window`);
+
+console.info(`employees, customers arrays into classes as static private fields`);
+console.info(`employee.js: add currentEmployee obj, setter - write name to localStorage. Similarly do in customers.js`);
 console.info(`Clean imports`);
 
 const customerName = document.getElementById("customer-name");
@@ -211,27 +232,36 @@ function showRegistrationWindow(callback = function () { }) {
     // const header = createElement({ name: "header" });
     // header.textContent = currentCustomerLabel === null ? "Вхід" : "Зміна покупця";
     const nameLabel = createElement({ name: "header", content: "Введіть ваше ім'я:" });
-    const nameInput = createElement({ name: "input" });
-    nameInput.setAttribute("autocomplete", "off");
-    const phoneNumberLabel = createElement({ name: "header", content: "Введіть ваш номер телефону:" });
-    const phoneNumberInput = createElement({ name: "input" });
-    phoneNumberInput.setAttribute("autocomplete", "off");
-    phoneNumberInput.setAttribute("type", "tel");
+    const nameInput = createElement({ name: "input", attributes: ["autocomplete: off"] });
+    const phoneNumLabel = createElement({ name: "header", content: "Введіть ваш номер телефону:" });
+    const phoneNumInput = createElement({ name: "input", attributes: ["type: tel", "autocomplete: off"] });
+    const passwordLabel = createElement({ name: "label", content: "Введіть пароль:" },);
+    const passwordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
+    const passwordBlock = createElement({ name: "form", class: "password-block" });
+    passwordBlock.innerHTML = `<label class="show-password">
+    <input type="checkbox">Показати пароль</label>`;
+    passwordBlock.prepend(passwordInput);
+    passwordBlock.addEventListener("change", showPassword);
     const logInBtn = createElement({ name: 'button', content: "Увійти", class: "log-in-btn" });
     logInBtn.addEventListener("click", async event => {
-        // for login you can enter name or phone or both
         setWarningAfterElement(nameInput, '');
-        setWarningAfterElement(phoneNumberInput, '');
+        setWarningAfterElement(phoneNumInput, '');
+        setWarningAfterElement(passwordInput, '');
         setWarningAfterElement(logInBtn, '');
+        // for login you can enter name or phone or both, and password
         let everythingIsCorrect = true;
         if (nameInput.value.length > 0) {
             everythingIsCorrect = nameIsCorrect(nameInput) && everythingIsCorrect;
         }
-        if (phoneNumberInput.value.length > 0) {
-            everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
+        if (phoneNumInput.value.length > 0) {
+            everythingIsCorrect = phoneNumberIsCorrect(phoneNumInput) && everythingIsCorrect;
         }
-        if (nameInput.value.length === 0 && phoneNumberInput.value.length === 0) {
+        if (nameInput.value.length === 0 && phoneNumInput.value.length === 0) {
             setWarningAfterElement(logInBtn, "Для регістрації потрібно ввести ім'я та номер телефону, або одне з них");
+            everythingIsCorrect = false;
+        }
+        if (passwordInput.value.length === 0) {
+            setWarningAfterElement(passwordInput, 'Введіть пароль');
             everythingIsCorrect = false;
         }
         if (everythingIsCorrect === false) {
@@ -240,7 +270,8 @@ function showRegistrationWindow(callback = function () { }) {
         try {
             let requestBody = {
                 name: nameInput.value,
-                phoneNum: phoneNumberInput.value
+                phoneNum: phoneNumInput.value,
+                password: passwordInput.value
             };
             let response = await fetch(location.origin + "/customers/log-in", {
                 method: "PROPFIND",
@@ -253,8 +284,13 @@ function showRegistrationWindow(callback = function () { }) {
                     if (result.message.includes("not exist")) {
                         setWarningAfterElement(logInBtn, `Покупця з такими даними не існує`);
                         return;
-                    } else if (result.message.includes("several customers")) {
+                    }
+                    if (result.message.includes("several customers")) {
                         setWarningAfterElement(logInBtn, `Знайдено декілька покупців з такими даними. Введіть додаткове дане (ім'я чи номер телефону) для уточнення пошуку.`);
+                        return;
+                    }
+                    if (result.message.includes("Wrong password")) {
+                        setWarningAfterElement(logInBtn, `Неправильний пароль`);
                         return;
                     }
                     throw new Error(result.message || "Server error.");
@@ -296,14 +332,86 @@ function showRegistrationWindow(callback = function () { }) {
         localStorage.removeItem("customerPhoneNum");
     });
     showModalWindow([nameLabel, nameInput,
-        phoneNumberLabel, phoneNumberInput, logInBtn,
-        createAccountBtn, enterAsEmployeeBtn],
+        phoneNumLabel, phoneNumInput,
+        passwordLabel, passwordBlock,
+        logInBtn, createAccountBtn, enterAsEmployeeBtn],
         { className: 'registration' });
 }
 function showCustomerProfile() {
     const customerInfo = createElement({ name: 'section', class: 'info' });
     customerInfo.innerHTML = `<div>${localStorage.getItem("customerName")}</div>
         <div>${localStorage.getItem("customerPhoneNum")}</div>`;
+    const oldPasswordLabel = createElement({ name: "label", content: "Введіть старий пароль:" },);
+    const oldPasswordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
+    const oldPasswordBlock = createElement({ name: "form", class: "password-block" });
+    oldPasswordBlock.innerHTML = `<label class="show-password">
+    <input type="checkbox">Показати пароль</label>`;
+    oldPasswordBlock.prepend(oldPasswordInput);
+    oldPasswordBlock.addEventListener("change", showPassword);
+    const newPasswordLabel = createElement({ name: "label", content: "Введіть новий пароль:" },);
+    const newPasswordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
+    const newPasswordBlock = createElement({ name: "form", class: "password-block" });
+    newPasswordBlock.innerHTML = `<label class="show-password">
+    <input type="checkbox">Показати пароль</label>`;
+    newPasswordBlock.prepend(newPasswordInput);
+    newPasswordBlock.addEventListener("change", showPassword);
+    const changePasswordBtn = createElement({ name: 'button', content: "Змінити пароль", class: "change-password-btn", style: "background-color: royalblue" });
+    changePasswordBtn.addEventListener("click", async event => {
+        if (!changePasswordBtn.textContent.includes("Підтвердити")) {
+            // display necessary labels and inputs
+            [oldPasswordLabel, oldPasswordBlock, newPasswordLabel, newPasswordBlock].forEach(element => changePasswordBtn.before(element));
+            changePasswordBtn.textContent = "Підтвердити зміну пароля";
+        } else {
+            setWarningAfterElement(oldPasswordInput, '');
+            setWarningAfterElement(changePasswordBtn, '');
+            let everythingIsCorrect = true;
+            if (oldPasswordInput.value.length === 0) {
+                setWarningAfterElement(oldPasswordInput, 'Введіть старий пароль');
+                everythingIsCorrect = false;
+            }
+            everythingIsCorrect = passwordIsCorrect(newPasswordInput) && everythingIsCorrect;
+            if (!everythingIsCorrect) {
+                return;
+            }
+            try {
+                let requestBody = {
+                    customerName: localStorage.getItem("customerName"),
+                    customerPhoneNum: localStorage.getItem("customerPhoneNum"),
+                    oldPassword: oldPasswordInput.value,
+                    newPassword: newPasswordInput.value,
+                };
+                let response = await fetch(location.origin + "/customers/change-password", {
+                    method: "PATCH",
+                    body: JSON.stringify(requestBody),
+                    headers: { "Content-Type": "application/json" }
+                })
+                if (response.ok) {
+                    let result = await response.json();
+                    if (!result.success) {
+                        if (result.message.includes("does not exist")) {
+                            setWarningAfterElement(changePasswordBtn, `Покупця з такими даними не існує`);
+                            return;
+                        }
+                        if (result.message.includes("several customers")) {
+                            setWarningAfterElement(logInBtn, `Помилка: знайдено декілька покупців з такими даними.`);
+                            return;
+                        }
+                        if (result.message.includes("Wrong password")) {
+                            setWarningAfterElement(changePasswordBtn, `Неправильний старий пароль`);
+                            return;
+                        }
+                        throw new Error(result.message || "Server error.");
+                    } else {
+                        event.target.closest(".modal-window").closeWindow();
+                    }
+                }
+            } catch (error) {
+                console.error(error.message);
+                alert("Error");
+                return;
+            }
+        }
+    });
     const exitBtn = createElement({ name: 'button', class: 'exit-btn', content: 'Вийти' });
     exitBtn.addEventListener('click', event => {
         customerName.style.display = "none";
@@ -319,6 +427,7 @@ function showCustomerProfile() {
         localStorage.removeItem("customerName");
         localStorage.removeItem("customerPhoneNum");
     });
-    showModalWindow([customerInfo, exitBtn, enterAsEmployeeBtn],
+    showModalWindow([customerInfo, changePasswordBtn,
+        exitBtn, enterAsEmployeeBtn],
         { className: 'profile' });
 }

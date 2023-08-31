@@ -45,6 +45,8 @@ CREATE TABLE customer (
 SELECT constraint_name FROM INFORMATION_SCHEMA.table_constraints WHERE table_name = 'customer';
 ALTER TABLE customer ADD deleted_id INT NOT NULL DEFAULT 0;
 ALTER TABLE customer ADD CONSTRAINT customer_name_phone_num_deleted_id_pkey PRIMARY KEY (name, phone_num, deleted_id);
+ALTER TABLE customer ADD passport_num VARCHAR(9) NOT NULL DEFAULT 'BA7654321';
+ALTER TABLE customer ADD password VARCHAR(20) NOT NULL DEFAULT 'pass';
 
 insert into customer values
 ('Kevin', 123456789012345, 'someEmail');
@@ -58,6 +60,7 @@ ALTER TABLE employee ADD password VARCHAR(20);
 ALTER TABLE employee ADD deleted_id INT DEFAULT 0;
 ALTER TABLE employee DROP CONSTRAINT employee_pkey;
 ALTER TABLE employee ADD CONSTRAINT employee_pkey PRIMARY KEY (name, deleted_id);
+ALTER TABLE employee ADD passport_num VARCHAR(9) NOT NULL DEFAULT 'AB1234567';
 
 CREATE TABLE order_items (
   num BIGSERIAL PRIMARY KEY NOT NULL,

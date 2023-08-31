@@ -14,7 +14,7 @@ customersRouter.post("/create-account", (req, res, next) => {
     })(req, res, next);
 }, async (req, res) => {
     try {
-        if (!req.body.name || !req.body.phoneNum || !req.body.email) {
+        if (!req.body.name || !req.body.phoneNum || !req.body.email || !req.body.passportNum || !req.body.password) {
             throw new Error("Customer account creation: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
         await pool.query(`
@@ -24,14 +24,21 @@ customersRouter.post("/create-account", (req, res, next) => {
         SELECT * FROM customer WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;
         `, [req.body.name, req.body.phoneNum]);
         if (result.rowCount > 0) {
-            throw new Error("Customer with such name and phone number already exists.");
-        } else {
-            result = await pool.query(`
-            INSERT INTO customer (name, phone_num, email) 
-            VALUES ($1, $2, $3) RETURNING name, phone_num, email;
-            `, [req.body.name, req.body.phoneNum, req.body.email]);
-            await pool.query(`COMMIT;`);
+            res.json({ success: false, message: "Customer with such name and phone number already exists." });
+            return;
         }
+        result = await pool.query(`
+        SELECT * FROM customer WHERE passport_num = $1 AND deleted_id = 0;
+        `, [req.body.passportNum]);
+        if (result.rowCount > 0) {
+            res.json({ success: false, message: "Customer with such passport number already exists." });
+            return;
+        }
+        result = await pool.query(`
+            INSERT INTO customer (name, phone_num, email, passport_num, password) 
+            VALUES ($1, $2, $3, $4, $5) RETURNING name, phone_num;
+            `, [req.body.name, req.body.phoneNum, req.body.email, req.body.passportNum, req.body.password]);
+        await pool.query(`COMMIT;`);
         res.json({ success: true, message: "Customer was added.", customerData: result.rows[0] });
     } catch (error) {
         console.log(error.message);
@@ -45,7 +52,7 @@ customersRouter.propfind("/log-in", (req, res, next) => {
     })(req, res, next);
 }, async (req, res) => {
     try {
-        if (!req.body.name && !req.body.phoneNum) {
+        if (!req.body.name && !req.body.phoneNum || !req.body.password) {
             throw new Error("Customer log in: req.body doesn't contain neither name nor phone number: " + JSON.stringify(req.body));
         }
         let condition = "", params = [];
@@ -70,6 +77,12 @@ customersRouter.propfind("/log-in", (req, res, next) => {
             res.json({ success: false, message: message });
             return;
         }
+        const parameterNum = params.push(req.body.password);
+        result = await pool.query(`SELECT name, phone_num FROM customer WHERE ${condition} AND password = $${parameterNum} AND deleted_id = 0;`, params);
+        if (result.rowCount === 0) {
+            res.json({ success: false, message: "Wrong password." });
+            return;
+        }
         res.json({ success: true, customerData: result.rows[0] });
     } catch (error) {
         console.log(error.message);
@@ -86,7 +99,9 @@ customersRouter.propfind("/get-customers", (req, res, next) => {
         if (!req.body.employeeName) {
             throw new Error("Customers receiving: req.body doesn't contain employee name: " + JSON.stringify(req.body));
         }
-        let result = await pool.query(`SELECT name, phone_num, email FROM customer WHERE deleted_id = 0;`);
+        let result = await pool.query(`
+        SELECT name, passport_num, phone_num, email 
+        FROM customer WHERE deleted_id = 0;`);
         res.json({ success: true, customers: result.rows });
     } catch (error) {
         console.log(error.message);
@@ -102,26 +117,75 @@ customersRouter.patch("/edit", (req, res, next) => {
     try {
         // console.log(req.body);
         // console.log(req.body.oldInfo);
-        if (!['employeeName', 'newCustomerName', 'newCustomerPhoneNum', 'newCustomerEmail',
+        if (!['employeeName', 'newCustomerName', 'newCustomerPhoneNum', 'newCustomerEmail', 'newCustomerPassportNum',
             'oldInfo'].every(key => Object.keys(req.body).includes(key))
-            || !['name', 'phoneNum', 'email'].every(key => Object.keys(req.body.oldInfo).includes(key))) {
+            || !['name', 'phoneNum', 'email', 'passportNum'].every(key => Object.keys(req.body.oldInfo).includes(key))) {
             throw new Error("Customer info changing: req.body doesn't contain some data: " + JSON.stringify(req.body));
         }
         await pool.query(`BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;`);
-        let result = await pool.query(`
-        SELECT * FROM customer WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;
-        `, [req.body.newCustomerName, req.body.newCustomerPhoneNum]);
-        if (result.rowCount > 0) {
-            res.json({ success: false, message: "Сustomer with such name already exists." });
-            return;
-        } else {
-            await pool.query(`UPDATE customer 
-            SET name = $1, phone_num = $2, email = $3 
-            WHERE name = $4 AND phone_num = $5 AND deleted_id = 0;`,
-                [req.body.newCustomerName, req.body.newCustomerPhoneNum, req.body.newCustomerEmail,
-                req.body.oldInfo.name, req.body.oldInfo.phoneNum]);
-            await pool.query(`COMMIT;`);
+        if (req.body.newCustomerName !== req.body.oldInfo.name || req.body.newCustomerPhoneNum !== req.body.oldInfo.phoneNum) {
+            let result = await pool.query(`
+            SELECT * FROM customer WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;
+            `, [req.body.newCustomerName, req.body.newCustomerPhoneNum]);
+            if (result.rowCount > 0) {
+                res.json({ success: false, message: "Сustomer with such name and phone number already exists." });
+                return;
+            }
         }
+        if (req.body.newCustomerPassportNum !== req.body.oldInfo.passportNum) {
+            let result = await pool.query(`
+            SELECT * FROM customer WHERE passport_num = $1 AND deleted_id = 0;
+            `, [req.body.newCustomerPassportNum]);
+            if (result.rowCount > 0) {
+                res.json({ success: false, message: "Customer with such passport number already exists." });
+                return;
+            }
+        }
+        await pool.query(`UPDATE customer 
+            SET name = $1, phone_num = $2, email = $3, passport_num = $4 
+            WHERE name = $5 AND phone_num = $6 AND deleted_id = 0;`,
+            [req.body.newCustomerName, req.body.newCustomerPhoneNum,
+            req.body.newCustomerEmail, req.body.newCustomerPassportNum,
+            req.body.oldInfo.name, req.body.oldInfo.phoneNum]);
+        await pool.query(`COMMIT;`);
+        res.json({ success: true });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+})
+
+customersRouter.patch("/change-password", (req, res, next) => {
+    express.json({
+        limit: req.get('content-length'),
+    })(req, res, next);
+}, async (req, res) => {
+    try {
+        if (!req.body.customerName || !req.body.customerPhoneNum || !req.body.oldPassword || !req.body.newPassword) {
+            throw new Error("Customer password changing: req.body doesn't contain some data: " + JSON.stringify(req.body));
+        }
+        await pool.query(`BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;`);
+        let result = await pool.query(`
+            SELECT * FROM customer WHERE name = $1 AND phone_num = $2 AND deleted_id = 0;
+            `, [req.body.customerName, req.body.customerPhoneNum]);
+        let message = "";
+        if (result.rowCount === 0) {
+            message = "Customer with such data does not exist.";
+        } else if (result.rowCount > 1) {
+            message = `Found several customers with such data.`;
+        }
+        if (message.length > 0) {
+            res.json({ success: false, message: message });
+            return;
+        }
+        result = await pool.query(`UPDATE customer SET password = $1 
+        WHERE name = $2 AND phone_num = $3 AND password = $4 AND deleted_id = 0;`,
+            [req.body.newPassword, req.body.customerName, req.body.customerPhoneNum, req.body.oldPassword]);
+        if (result.rowCount === 0) {
+            res.json({ success: false, message: "Wrong password." });
+            return;
+        }
+        await pool.query(`COMMIT;`);
         res.json({ success: true });
     } catch (error) {
         console.log(error.message);

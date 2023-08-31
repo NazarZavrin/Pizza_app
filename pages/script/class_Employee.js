@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, emailIsCorrect, passwordIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, showPassword, nameIsCorrect } from "./useful-for-client.js";
+import { createElement, emailIsCorrect, passwordIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, showPassword, nameIsCorrect, passportNumIsCorrect } from "./useful-for-client.js";
 
 let employees = [];
 let employeesToDisplay = [];
@@ -18,7 +18,10 @@ export default class Employee {
         const emailLabel = createElement({ name: "header", content: "Введіть email співробітника:" });
         const emailInput = createElement({ name: "input" });
         emailInput.setAttribute("autocomplete", "off");
-        const passwordLabel = createElement({ name: "label", content: "Введіть пароль:" },);
+        const passportNumLabel = createElement({ name: "header", content: "Введіть номер паспорту співробітника:" });
+        const passportNumInput = createElement({ name: "input" });
+        passportNumInput.setAttribute("autocomplete", "off");
+        const passwordLabel = createElement({ name: "label", content: "Введіть пароль для співробітника:" });
         const passwordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
         const passwordBlock = createElement({ name: "form", class: "password-block" });
         passwordBlock.innerHTML = `<label class="show-password">
@@ -35,6 +38,7 @@ export default class Employee {
             let everythingIsCorrect = nameIsCorrect(nameInput);
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
+            everythingIsCorrect = passportNumIsCorrect(passportNumInput) && everythingIsCorrect;
             everythingIsCorrect = passwordIsCorrect(passwordInput) && everythingIsCorrect;
             if (!everythingIsCorrect) {
                 return;
@@ -45,6 +49,7 @@ export default class Employee {
                     name: nameInput.value,
                     phoneNum: phoneNumberInput.value,
                     email: emailInput.value,
+                    passportNum: passportNumInput.value,
                     password: passwordInput.value
                 };
                 let response = await fetch(location.origin + "/employees/create-account", {
@@ -55,8 +60,12 @@ export default class Employee {
                 if (response.ok) {
                     let result = await response.json();
                     if (!result.success) {
-                        if (result.message.includes("already exists")) {
+                        if (result.message.includes("name already exists")) {
                             setWarningAfterElement(createAccountBtn, 'Співробітник з таким іменем вже існує');
+                            return;
+                        }
+                        if (result.message.includes("passport number already exists")) {
+                            setWarningAfterElement(createAccountBtn, 'Співробітник з таким номером паспорту вже існує');
                             return;
                         }
                         throw new Error(result.message || "Server error.");
@@ -74,6 +83,7 @@ export default class Employee {
         showModalWindow([header, nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput,
             emailLabel, emailInput,
+            passportNumLabel, passportNumInput,
             passwordLabel, passwordBlock,
             createAccountBtn],
             { className: 'create-account' });
@@ -84,6 +94,8 @@ export default class Employee {
         employee.element.append(info);
         const name = createElement({ class: 'name', content: "Ім'я: " + employee.name });
         info.append(name);
+        const passportNum = createElement({ class: 'passport_num', content: 'Номер паспорту: ' + employee.passport_num });
+        info.append(passportNum);
         const phoneNum = createElement({ class: 'phone_num', content: 'Номер телефону: ' + employee.phone_num });
         info.append(phoneNum);
         const email = createElement({ class: 'email', content: 'Email: ' + employee.email });
@@ -152,6 +164,7 @@ export default class Employee {
             name: employeesToDisplay[employeeIndex].name,
             phoneNum: employeesToDisplay[employeeIndex].phone_num,
             email: employeesToDisplay[employeeIndex].email,
+            passportNum: employeesToDisplay[employeeIndex].passport_num,
         }
         const header = createElement({ name: "header", content: 'Редагування даних ' });
         header.textContent += oldInfo.name !== 'Admin' ? 'співробітника:' : 'адміністратора:';
@@ -170,44 +183,50 @@ export default class Employee {
         emailLabel.textContent += oldInfo.name !== 'Admin' ? 'співробітника:' : 'адміністратора:';
         const emailInput = createElement({ name: "input", content: oldInfo.email });
         emailInput.setAttribute("autocomplete", "off");
+        const passportNumLabel = createElement({ name: "header", content: "Введіть новий номер паспорту " });
+        passportNumLabel.textContent += oldInfo.name !== 'Admin' ? 'співробітника:' : 'адміністратора:';
+        const passportNumInput = createElement({ name: "input", content: oldInfo.passportNum });
+        passportNumInput.setAttribute("autocomplete", "off");
         let oldPasswordLabel = null, oldPasswordBlock = null, oldPasswordInput = null;
         let newPasswordLabel = null, newPasswordBlock = null, newPasswordInput = null;
         let changePasswordBtn = null;
         if (oldInfo.name === 'Admin') {
             // admin can change only his password
             oldPasswordLabel = createElement({ name: "label", content: "Введіть старий пароль:" },);
-            oldPasswordLabel.style.display = "none";
             oldPasswordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
             oldPasswordBlock = createElement({ name: "form", class: "password-block" });
             oldPasswordBlock.innerHTML = `<label class="show-password">
     <input type="checkbox">Показати пароль</label>`;
             oldPasswordBlock.prepend(oldPasswordInput);
             oldPasswordBlock.addEventListener("change", showPassword);
-            oldPasswordBlock.style.display = "none";
 
             newPasswordLabel = createElement({ name: "label", content: "Введіть новий пароль:" },);
-            newPasswordLabel.style.display = "none";
             newPasswordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
             newPasswordBlock = createElement({ name: "form", class: "password-block" });
             newPasswordBlock.innerHTML = `<label class="show-password">
     <input type="checkbox">Показати пароль</label>`;
             newPasswordBlock.prepend(newPasswordInput);
             newPasswordBlock.addEventListener("change", showPassword);
-            newPasswordBlock.style.display = "none";
 
             changePasswordBtn = createElement({ name: 'button', content: "Змінити пароль", class: "change-password-btn", style: "background-color: royalblue" });
             changePasswordBtn.addEventListener("click", event => {
-                [oldPasswordLabel, oldPasswordBlock, newPasswordLabel, newPasswordBlock].forEach(element => element.style.display = "");
+                [oldPasswordLabel, oldPasswordBlock, newPasswordLabel, newPasswordBlock].forEach(element => changePasswordBtn.before(element));
                 changePasswordBtn.remove();
             })
         }
         const confirmChangesBtn = createElement({ name: 'button', content: "Підтвердити зміни", class: "confirm-changes-btn" });
         confirmChangesBtn.addEventListener("click", async event => {
+            setWarningAfterElement(oldPasswordInput, '');
             setWarningAfterElement(confirmChangesBtn, '');
             let everythingIsCorrect = oldInfo.name === 'Admin' || nameIsCorrect(nameInput);
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
+            everythingIsCorrect = passportNumIsCorrect(passportNumInput) && everythingIsCorrect;
             if (newPasswordInput !== null && newPasswordInput.value !== '') {
+                if (oldPasswordInput.value.length === 0) {
+                    setWarningAfterElement(oldPasswordInput, 'Введіть старий пароль');
+                    everythingIsCorrect = false;
+                }
                 everythingIsCorrect = passwordIsCorrect(newPasswordInput) && everythingIsCorrect;
             }
             if (!everythingIsCorrect) {
@@ -219,6 +238,7 @@ export default class Employee {
                     newEmployeeName: nameInput !== null ? nameInput.value : null,
                     newEmployeePhoneNum: phoneNumberInput.value,
                     newEmployeeEmail: emailInput.value,
+                    newEmployeePassportNum: passportNumInput.value,
                     oldInfo, // oldInfo: oldInfo
                 };
                 if (oldInfo.name === 'Admin') {
@@ -235,11 +255,16 @@ export default class Employee {
                 if (response.ok) {
                     let result = await response.json();
                     if (!result.success) {
-                        if (result.message.includes("already exists")) {
+                        if (result.message.includes("name already exists")) {
                             setWarningAfterElement(confirmChangesBtn, 'Співробітник з таким іменем вже існує');
                             return;
-                        } else if (result.message.includes("Wrong password")) {
-                            setWarningAfterElement(confirmChangesBtn, `Неправильний пароль`);
+                        }
+                        if (result.message.includes("passport number already exists")) {
+                            setWarningAfterElement(confirmChangesBtn, 'Співробітник з таким номером паспорту вже існує');
+                            return;
+                        }
+                        if (result.message.includes("Wrong password")) {
+                            setWarningAfterElement(confirmChangesBtn, `Неправильний старий пароль`);
                             return;
                         }
                         throw new Error(result.message || "Server error.");
@@ -257,8 +282,7 @@ export default class Employee {
         showModalWindow([header, nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput,
             emailLabel, emailInput,
-            oldPasswordLabel, oldPasswordBlock,
-            newPasswordLabel, newPasswordBlock,
+            passportNumLabel, passportNumInput,
             changePasswordBtn, confirmChangesBtn],
             { className: 'edit-employee-data' });
     }

@@ -107,10 +107,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 30px;
-  background-color: red;
-  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(-135deg, #0077ff 30%, rgb(0, 204, 51) 70%);
+  border: solid 3px dimgray;
+  border-radius: 30% 0;
 }
 .modal-window > .modal-window-cross > img {
   max-width: 100%;
@@ -332,7 +333,7 @@ main > a .to-orders-page-btn {
   background-color: limegreen;
 }
 main > a .to-employees-page-btn {
-  background-color: gray;
+  background-color: dimgray;
 }
 main > a .report-btn {
   background-color: slateblue;

@@ -9,6 +9,7 @@
   height: 100%;
   min-height: 100vh;
 }
+
 .modal-window {
   position: absolute;
   top: 50%;
@@ -24,6 +25,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
   & > .modal-window-cross {
     position: absolute;
     top: 0;
@@ -32,14 +34,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 30px;
-    height: 30px;
-    background-color: red;
-    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    // background: rgb(128, 128, 128);
+    background: linear-gradient(-135deg, #0077ff 30%, rgb(0, 204, 51) 70%);
+    border: solid 3px dimgray;
+    border-radius: 30% 0;
+
+    // border-radius: 50%;
     & > img {
       max-width: 100%;
     }
   }
+
   & .warning {
     max-width: 100%;
     width: 150px;
@@ -50,12 +57,15 @@
     word-wrap: break-word;
   }
 }
+
 .modal-window {
   padding: 7px;
+
   header {
     text-align: center;
     margin-bottom: 3px;
   }
+
   input:not([type="checkbox"]) {
     font: inherit;
     display: inline-block;
@@ -65,9 +75,11 @@
     padding: 0 3px;
     margin-bottom: 3px;
   }
+
   input[type="checkbox"] {
     margin-right: 3px;
   }
+
   button {
     background-color: limegreen;
     color: white;
@@ -77,31 +89,37 @@
     text-align: center;
     font: inherit;
   }
+
   form.password-block {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
   &.confirm {
     header {
       margin-bottom: 5px;
       border-bottom: 2px solid gray;
       border-radius: 5px;
     }
+
     section {
       display: flex;
       flex-direction: column;
       align-items: center;
+
       & + div {
         text-align: center;
         margin-bottom: 5px;
       }
     }
+
     label {
       margin-bottom: 5px;
       white-space: nowrap;
     }
   }
+
   &.registration {
     // .create-account-label {
     //   text-align: center;
@@ -112,10 +130,12 @@
       &.create-account-btn {
         background-color: dodgerblue;
       }
+
       &.enter-as-employee-btn {
-        background-color: royalblue;
+        background-color: dimgray;
       }
     }
+
     // .separator {
     //   width: 100%;
     //   height: 2px;
@@ -123,24 +143,30 @@
     //   border-radius: 3px;
     // }
   }
+
   &.profile {
     min-width: 200px;
+
     & > section {
       text-align: center;
       width: 100%;
       border: 1px solid gray;
       border-radius: 3px;
+
       & > div:nth-child(2) {
         font-size: 14px;
       }
     }
+
     & .exit-btn {
       background-color: red;
     }
+
     & .enter-as-employee-btn {
-      background-color: royalblue;
+      background-color: dimgray;
     }
   }
+
   &.basket {
     .current-customer-label {
       border: 1px solid gray;
@@ -148,12 +174,14 @@
       margin-bottom: 5px;
       padding: 3px;
     }
+
     section {
       max-height: 60vh;
       overflow: auto;
       padding: 3px;
       margin-bottom: 3px;
     }
+
     section > div {
       display: flex;
       flex-direction: column;
@@ -163,21 +191,26 @@
       border-radius: 5px;
       padding: 3px;
       margin-bottom: 10px;
+
       &:last-of-type {
         margin-bottom: 0;
       }
+
       & > div {
         &.pizza-name {
           white-space: nowrap;
         }
+
         &.extra-toppings {
           font-size: 14px;
           color: dimgray;
         }
+
         &.pizza-cost {
           font-size: 16px;
         }
       }
+
       & > .del-from-basket-btn {
         background-color: red;
         font-size: 18px;
@@ -185,6 +218,7 @@
         white-space: nowrap;
       }
     }
+
     .total-cost {
       text-align: center;
     }

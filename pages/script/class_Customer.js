@@ -1,6 +1,6 @@
 "use strict";
 
-import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect } from "./useful-for-client.js";
+import { createElement, emailIsCorrect, phoneNumberIsCorrect, setWarningAfterElement, showModalWindow, nameIsCorrect, passportNumIsCorrect, showPassword, passwordIsCorrect } from "./useful-for-client.js";
 
 let customers = [];
 let customersToDisplay = [];
@@ -8,6 +8,7 @@ let customersToDisplay = [];
 export default class Customer {
     constructor(creator = "employee", callback = function () { }) {
         const header = createElement({ name: "header", content: "Створення акаунту" });
+        header.textContent += creator == 'employee' ? ' покупця' : '';
         const nameLabel = createElement({ name: "header" });
         nameLabel.textContent = creator === "customer" ? "Введіть ваше ім'я:" : "Введіть ім'я покупця:";
         const nameInput = createElement({ name: "input" });
@@ -21,12 +22,26 @@ export default class Customer {
         emailLabel.textContent = creator === "customer" ? "Введіть ваш email:" : "Введіть email покупця:";
         const emailInput = createElement({ name: "input" });
         emailInput.setAttribute("autocomplete", "off");
+        const passportNumLabel = createElement({ name: "header" });
+        passportNumLabel.textContent = creator === "customer" ? "Введіть ваш номер паспорту:" : "Введіть номер паспорту покупця:";
+        const passportNumInput = createElement({ name: "input" });
+        passportNumInput.setAttribute("autocomplete", "off");
+        const passwordLabel = createElement({ name: "label"});
+        passwordLabel.textContent = creator === "customer" ? "Придумайте пароль:" : "Введіть пароль для акаунту покупця:";
+        const passwordInput = createElement({ name: "input", attributes: ["type: password", "autocomplete: off"] });
+        const passwordBlock = createElement({ name: "form", class: "password-block" });
+        passwordBlock.innerHTML = `<label class="show-password">
+    <input type="checkbox">Показати пароль</label>`;
+        passwordBlock.prepend(passwordInput);
+        passwordBlock.addEventListener("change", showPassword);
         const createAccountBtn = createElement({ name: 'button', content: "Створити акаунт", class: "create-account-btn" });
         createAccountBtn.addEventListener("click", async event => {
             setWarningAfterElement(createAccountBtn, '');
             let everythingIsCorrect = nameIsCorrect(nameInput);
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
+            everythingIsCorrect = passportNumIsCorrect(passportNumInput) && everythingIsCorrect;
+            everythingIsCorrect = passwordIsCorrect(passwordInput) && everythingIsCorrect;
             if (!everythingIsCorrect) {
                 return;
             }
@@ -34,7 +49,9 @@ export default class Customer {
                 let requestBody = {
                     name: nameInput.value,
                     phoneNum: phoneNumberInput.value,
-                    email: emailInput.value
+                    email: emailInput.value,
+                    passportNum: passportNumInput.value,
+                    password: passwordInput.value
                 };
                 let response = await fetch(location.origin + "/customers/create-account", {
                     method: "POST",
@@ -44,8 +61,12 @@ export default class Customer {
                 if (response.ok) {
                     let result = await response.json();
                     if (!result.success) {
-                        if (result.message.includes("already exists")) {
+                        if (result.message.includes("name already exists")) {
                             setWarningAfterElement(createAccountBtn, 'Покупець з таким іменем та номером телефону вже існує');
+                            return;
+                        }
+                        if (result.message.includes("passport number already exists")) {
+                            setWarningAfterElement(createAccountBtn, 'Покупець з таким номером паспорту вже існує');
                             return;
                         }
                         throw new Error(result.message || "Server error.");
@@ -62,7 +83,10 @@ export default class Customer {
         });
         showModalWindow([header, nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput,
-            emailLabel, emailInput, createAccountBtn],
+            emailLabel, emailInput, 
+            passportNumLabel, passportNumInput, 
+            passwordLabel, passwordBlock,
+            createAccountBtn],
             { className: 'create-account' });
     }
     static createCustomerElement(customer) {
@@ -71,6 +95,8 @@ export default class Customer {
         customer.element.append(info);
         const name = createElement({ class: 'name', content: "Ім'я: " + customer.name });
         info.append(name);
+        const passportNum = createElement({ class: 'passport_num', content: 'Номер паспорту: ' + customer.passport_num });
+        info.append(passportNum);
         const phoneNum = createElement({ class: 'phone_num', content: 'Номер телефону: ' + customer.phone_num });
         info.append(phoneNum);
         const email = createElement({ class: 'email', content: 'Email: ' + customer.email });
@@ -134,6 +160,7 @@ export default class Customer {
             name: customersToDisplay[customerIndex].name,
             phoneNum: customersToDisplay[customerIndex].phone_num,
             email: customersToDisplay[customerIndex].email,
+            passportNum: customersToDisplay[customerIndex].passport_num,
         }
         const header = createElement({ name: "header", content: 'Редагування даних покупця:' });
         const nameLabel = createElement({ name: "header", content: "Введіть нове ім'я покупця:" });
@@ -146,6 +173,9 @@ export default class Customer {
         const emailLabel = createElement({ name: "header", content: "Введіть новий email покупця:" });
         const emailInput = createElement({ name: "input", content: oldInfo.email });
         emailInput.setAttribute("autocomplete", "off");
+        const passportNumLabel = createElement({ name: "header", content: "Введіть новий номер паспорту покупця:" });
+        const passportNumInput = createElement({ name: "input", content: oldInfo.passportNum });
+        passportNumInput.setAttribute("autocomplete", "off");
         const confirmChangesBtn = createElement({ name: 'button', content: "Підтвердити зміни", class: "confirm-changes-btn" });
         confirmChangesBtn.addEventListener("click", async event => {
             setWarningAfterElement(confirmChangesBtn, '');
@@ -153,6 +183,7 @@ export default class Customer {
             everythingIsCorrect = nameIsCorrect(nameInput) && everythingIsCorrect;
             everythingIsCorrect = phoneNumberIsCorrect(phoneNumberInput) && everythingIsCorrect;
             everythingIsCorrect = emailIsCorrect(emailInput) && everythingIsCorrect;
+            everythingIsCorrect = passportNumIsCorrect(passportNumInput) && everythingIsCorrect;
             if (everythingIsCorrect === false) {
                 return;
             }
@@ -162,6 +193,7 @@ export default class Customer {
                     newCustomerName: nameInput.value,
                     newCustomerPhoneNum: phoneNumberInput.value,
                     newCustomerEmail: emailInput.value,
+                    newCustomerPassportNum: passportNumInput.value,
                     oldInfo, // oldInfo: oldInfo
                 };
                 let response = await fetch(location.origin + "/customers/edit", {
@@ -172,8 +204,12 @@ export default class Customer {
                 if (response.ok) {
                     let result = await response.json();
                     if (!result.success) {
-                        if (result.message.includes("already exists")) {
+                        if (result.message.includes("name and phone number already exists")) {
                             setWarningAfterElement(confirmChangesBtn, 'Покупець з таким іменем та номером телефону вже існує');
+                            return;
+                        }
+                        if (result.message.includes("passport number already exists")) {
+                            setWarningAfterElement(confirmChangesBtn, 'Покупець з таким номером паспорту вже існує');
                             return;
                         }
                         throw new Error(result.message || "Server error.");
@@ -190,7 +226,9 @@ export default class Customer {
         });
         showModalWindow([header, nameLabel, nameInput,
             phoneNumberLabel, phoneNumberInput,
-            emailLabel, emailInput, confirmChangesBtn],
+            emailLabel, emailInput,
+            passportNumLabel, passportNumInput,
+            confirmChangesBtn],
             { className: 'edit-customer-data' });
         /*
         let requestBody = {
